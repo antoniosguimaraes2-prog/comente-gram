@@ -14,7 +14,243 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      accounts: {
+        Row: {
+          access_token_encrypted: string
+          connected_at: string
+          id: string
+          ig_business_id: string
+          page_id: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted: string
+          connected_at?: string
+          id?: string
+          ig_business_id: string
+          page_id: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string
+          connected_at?: string
+          id?: string
+          ig_business_id?: string
+          page_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      comments: {
+        Row: {
+          commented_at: string
+          created_at: string
+          id: string
+          ig_user_id: string
+          ig_username: string | null
+          matched_keyword_id: string | null
+          post_id: string
+          text: string
+        }
+        Insert: {
+          commented_at: string
+          created_at?: string
+          id?: string
+          ig_user_id: string
+          ig_username?: string | null
+          matched_keyword_id?: string | null
+          post_id: string
+          text: string
+        }
+        Update: {
+          commented_at?: string
+          created_at?: string
+          id?: string
+          ig_user_id?: string
+          ig_username?: string | null
+          matched_keyword_id?: string | null
+          post_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_matched_keyword_id_fkey"
+            columns: ["matched_keyword_id"]
+            isOneToOne: false
+            referencedRelation: "keywords"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keywords: {
+        Row: {
+          active_bool: boolean
+          created_at: string
+          id: string
+          post_id: string
+          word: string
+        }
+        Insert: {
+          active_bool?: boolean
+          created_at?: string
+          id?: string
+          post_id: string
+          word: string
+        }
+        Update: {
+          active_bool?: boolean
+          created_at?: string
+          id?: string
+          post_id?: string
+          word?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keywords_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          created_at: string
+          error_text: string | null
+          id: string
+          ig_user_id: string
+          ig_username: string | null
+          keyword_id: string | null
+          post_id: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["message_status"]
+        }
+        Insert: {
+          created_at?: string
+          error_text?: string | null
+          id?: string
+          ig_user_id: string
+          ig_username?: string | null
+          keyword_id?: string | null
+          post_id: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["message_status"]
+        }
+        Update: {
+          created_at?: string
+          error_text?: string | null
+          id?: string
+          ig_user_id?: string
+          ig_username?: string | null
+          keyword_id?: string | null
+          post_id?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["message_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "keywords"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          account_id: string
+          active_bool: boolean
+          caption: string | null
+          created_at: string
+          dm_template: string | null
+          id: string
+          media_id: string
+          posted_at: string | null
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          active_bool?: boolean
+          caption?: string | null
+          created_at?: string
+          dm_template?: string | null
+          id?: string
+          media_id: string
+          posted_at?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          active_bool?: boolean
+          caption?: string | null
+          created_at?: string
+          dm_template?: string | null
+          id?: string
+          media_id?: string
+          posted_at?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settings: {
+        Row: {
+          account_id: string
+          created_at: string
+          default_dm_template: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          default_dm_template?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          default_dm_template?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settings_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +259,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      message_status: "SENT" | "ERROR" | "RETRY"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +386,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      message_status: ["SENT", "ERROR", "RETRY"],
+    },
   },
 } as const

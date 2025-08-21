@@ -1,9 +1,16 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { AuthProvider } from "@/providers/AuthProvider";
+import AuthPage from "./pages/AuthPage";
+import Dashboard from "./pages/Dashboard";
+import ConnectInstagram from "./pages/ConnectInstagram";
+import NewCampaign from "./pages/NewCampaign";
+import PostDetails from "./pages/PostDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -13,13 +20,39 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/connect-instagram" element={
+              <ProtectedRoute>
+                <ConnectInstagram />
+              </ProtectedRoute>
+            } />
+            <Route path="/new" element={
+              <ProtectedRoute>
+                <NewCampaign />
+              </ProtectedRoute>
+            } />
+            <Route path="/posts/:mediaId" element={
+              <ProtectedRoute>
+                <PostDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
