@@ -44,6 +44,58 @@ const AuthPage = () => {
     }
   };
 
+  const handleTestLogin = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: "teste@teste.com",
+        password: "teste",
+      });
+
+      if (error) {
+        // Se falhar o login, tenta criar a conta
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: "teste@teste.com",
+          password: "teste",
+          options: {
+            emailRedirectTo: `${window.location.origin}/dashboard`
+          }
+        });
+
+        if (signUpError) {
+          toast({
+            title: "Erro",
+            description: "Não foi possível criar ou acessar a conta de teste.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Conta de teste criada!",
+            description: "Fazendo login automático...",
+          });
+          // Tenta fazer login novamente
+          await supabase.auth.signInWithPassword({
+            email: "teste@teste.com",
+            password: "teste",
+          });
+        }
+      } else {
+        toast({
+          title: "Login de teste realizado!",
+          description: "Redirecionando...",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro no login de teste.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const AuthForm = ({ isSignUp }: { isSignUp: boolean }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -103,6 +155,18 @@ const AuthPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <Button 
+              onClick={handleTestLogin} 
+              className="w-full mb-4" 
+              variant="outline"
+              disabled={loading}
+            >
+              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Login de Teste (teste@teste.com)
+            </Button>
+          </div>
+          
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Entrar</TabsTrigger>
