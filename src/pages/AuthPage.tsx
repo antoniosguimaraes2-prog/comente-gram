@@ -17,7 +17,13 @@ const AuthPage = () => {
     setLoading(true);
     try {
       const { error } = isSignUp
-        ? await supabase.auth.signUp({ email, password })
+        ? await supabase.auth.signUp({ 
+            email, 
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/dashboard`
+            }
+          })
         : await supabase.auth.signInWithPassword({ email, password });
 
       if (error) throw error;
@@ -44,19 +50,40 @@ const AuthPage = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro no login com Google.",
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
+  };
+
   const handleTestLogin = async () => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: "teste@teste.com",
-        password: "teste",
+        password: "teste123",
       });
 
       if (error) {
         // Se falhar o login, tenta criar a conta
         const { error: signUpError } = await supabase.auth.signUp({
           email: "teste@teste.com",
-          password: "teste",
+          password: "teste123",
           options: {
             emailRedirectTo: `${window.location.origin}/dashboard`
           }
@@ -64,8 +91,8 @@ const AuthPage = () => {
 
         if (signUpError) {
           toast({
-            title: "Erro",
-            description: "Não foi possível criar ou acessar a conta de teste.",
+            title: "Erro no Login de Teste",
+            description: `${signUpError.message}. Configure o Supabase: desabilite "Confirm email" e ajuste "Password minimum length" para 8 caracteres.`,
             variant: "destructive",
           });
         } else {
@@ -76,7 +103,7 @@ const AuthPage = () => {
           // Tenta fazer login novamente
           await supabase.auth.signInWithPassword({
             email: "teste@teste.com",
-            password: "teste",
+            password: "teste123",
           });
         }
       } else {
@@ -88,7 +115,7 @@ const AuthPage = () => {
     } catch (error: any) {
       toast({
         title: "Erro",
-        description: error.message || "Erro no login de teste.",
+        description: `${error.message}. Configure o Supabase corretamente.`,
         variant: "destructive",
       });
     } finally {
@@ -155,16 +182,37 @@ const AuthPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
+          <div className="mb-4 space-y-2">
             <Button 
               onClick={handleTestLogin} 
-              className="w-full mb-4" 
+              className="w-full" 
               variant="outline"
               disabled={loading}
             >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Login de Teste (teste@teste.com)
             </Button>
+            
+            <Button 
+              onClick={handleGoogleLogin} 
+              className="w-full" 
+              variant="secondary"
+              disabled={loading}
+            >
+              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Continuar com Google
+            </Button>
+          </div>
+          
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Ou continue com email
+              </span>
+            </div>
           </div>
           
           <Tabs defaultValue="login" className="w-full">
