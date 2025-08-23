@@ -181,6 +181,7 @@ export type Database = {
           dm_template: string | null
           id: string
           media_id: string
+          name: string | null
           posted_at: string | null
           thumbnail_url: string | null
           updated_at: string
@@ -193,6 +194,7 @@ export type Database = {
           dm_template?: string | null
           id?: string
           media_id: string
+          name?: string | null
           posted_at?: string | null
           thumbnail_url?: string | null
           updated_at?: string
@@ -205,6 +207,7 @@ export type Database = {
           dm_template?: string | null
           id?: string
           media_id?: string
+          name?: string | null
           posted_at?: string | null
           thumbnail_url?: string | null
           updated_at?: string

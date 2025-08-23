@@ -1,6 +1,9 @@
+
 // MVP Mode - Local storage helper for testing without backend
 export interface MVPAutomation {
   id: string;
+  name: string;
+  accountName: string;
   postUrl: string;
   keywords: string[];
   dmTemplate: string;
@@ -40,4 +43,14 @@ export const addMVPAutomation = (automation: Omit<MVPAutomation, 'id' | 'created
   localStorage.setItem(AUTOMATIONS_KEY, JSON.stringify(automations));
   
   return newAutomation;
+};
+
+// Mock data for MVP insights
+export const getMVPInsights = () => {
+  const automations = getMVPAutomations();
+  return {
+    totalAutomations: automations.length,
+    totalComments: Math.floor(Math.random() * 100) + automations.length * 5, // Simulated
+    totalMessages: Math.floor(Math.random() * 80) + automations.length * 3, // Simulated
+  };
 };

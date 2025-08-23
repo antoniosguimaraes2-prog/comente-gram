@@ -2,13 +2,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
-import PostCard from "@/components/PostCard";
-import { Input } from "@/components/ui/input";
+import DashboardInsights from "@/components/DashboardInsights";
+import DashboardFilters from "@/components/DashboardFilters";
+import AutomationCard from "@/components/AutomationCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Calendar, Instagram, Zap } from "lucide-react";
+import { Instagram, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/providers/AuthProvider";
 import { getMVPAutomations } from "@/lib/mvp";
@@ -16,6 +16,7 @@ import { getMVPAutomations } from "@/lib/mvp";
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [accountFilter, setAccountFilter] = useState("all");
   const { isInMVPMode } = useAuth();
 
   // Check if user has connected Instagram account (skip in MVP mode)
@@ -34,10 +35,48 @@ const Dashboard = () => {
     },
   });
 
-  // Fetch posts with stats
-  const { data: posts = [], isLoading } = useQuery({
-    queryKey: ["posts", searchTerm, dateFilter],
+  // Get available accounts for filter (in normal mode)
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["accounts"],
     queryFn: async () => {
+      if (isInMVPMode) return [];
+      
+      const { data, error } = await supabase
+        .from("accounts")
+        .select("id, page_id");
+      
+      if (error) throw error;
+      return data.map(acc => ({
+        id: acc.id,
+        name: `Conta ${acc.page_id}`, // You can enhance this with actual account names
+      }));
+    },
+    enabled: !isInMVPMode,
+  });
+
+  // Fetch posts/automations with filtering
+  const { data: automations = [], isLoading } = useQuery({
+    queryKey: ["automations", searchTerm, dateFilter, accountFilter],
+    queryFn: async () => {
+      if (isInMVPMode) {
+        let mvpAutomations = getMVPAutomations();
+        
+        // Apply filters
+        if (searchTerm) {
+          mvpAutomations = mvpAutomations.filter(auto =>
+            auto.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+        
+        if (dateFilter) {
+          mvpAutomations = mvpAutomations.filter(auto =>
+            auto.createdAt >= dateFilter
+          );
+        }
+        
+        return mvpAutomations;
+      }
+
       if (!account) return [];
       
       let query = supabase
@@ -45,18 +84,26 @@ const Dashboard = () => {
         .select(`
           *,
           comments:comments(count),
-          messages:messages(count)
+          messages:messages(count),
+          keywords:keywords(word)
         `)
         .eq("account_id", account.id)
-        .order("posted_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(50);
 
-      if (searchTerm) {
-        query = query.ilike("caption", `%${searchTerm}%`);
+      // Apply account filter
+      if (accountFilter !== "all") {
+        query = query.eq("account_id", accountFilter);
       }
 
+      // Apply name search filter
+      if (searchTerm) {
+        query = query.ilike("name", `%${searchTerm}%`);
+      }
+
+      // Apply date filter
       if (dateFilter) {
-        query = query.gte("posted_at", dateFilter);
+        query = query.gte("created_at", dateFilter);
       }
 
       const { data, error } = await query;
@@ -68,16 +115,16 @@ const Dashboard = () => {
         total_messages: post.messages?.[0]?.count || 0,
         send_rate: post.comments?.[0]?.count > 0 
           ? ((post.messages?.[0]?.count || 0) / post.comments[0].count * 100).toFixed(1)
-          : "0.0"
+          : "0.0",
+        keywords: post.keywords?.map(k => k.word) || [],
+        dmTemplate: post.dm_template,
       }));
     },
-    enabled: !!account,
+    enabled: isInMVPMode || !!account,
   });
 
   // MVP Mode - show local automations
   if (isInMVPMode) {
-    const mvpAutomations = getMVPAutomations();
-    
     return (
       <Layout>
         <div className="space-y-6">
@@ -99,14 +146,29 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          {mvpAutomations.length === 0 ? (
+          <DashboardInsights />
+
+          <DashboardFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            dateFilter={dateFilter}
+            onDateChange={setDateFilter}
+            accountFilter={accountFilter}
+            onAccountChange={setAccountFilter}
+            accounts={[]}
+            isInMVPMode={true}
+          />
+
+          {automations.length === 0 ? (
             <div className="text-center py-12">
               <Zap className="w-16 h-16 mx-auto text-gray-400 mb-4" />
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Crie sua primeira automação de teste
+                {searchTerm || dateFilter ? "Nenhuma automação encontrada" : "Crie sua primeira automação de teste"}
               </h2>
               <p className="text-gray-600 mb-6">
-                No modo MVP você pode testar o fluxo completo sem conectar Instagram.
+                {searchTerm || dateFilter
+                  ? "Tente ajustar os filtros para ver mais automações."
+                  : "No modo MVP você pode testar o fluxo completo sem conectar Instagram."}
               </p>
               <Link to="/new">
                 <Button size="lg">Criar Automação de Teste</Button>
@@ -114,33 +176,8 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mvpAutomations.map((automation) => (
-                <Card key={automation.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Zap className="w-4 h-4" />
-                      Automação de Teste
-                    </CardTitle>
-                    <CardDescription className="line-clamp-2">
-                      {automation.postUrl}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">Palavras-chave:</p>
-                        <p className="text-sm text-gray-600">{automation.keywords.join(", ")}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">Mensagem:</p>
-                        <p className="text-sm text-gray-600 line-clamp-2">{automation.dmTemplate}</p>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Criado: {new Date(automation.createdAt).toLocaleDateString("pt-BR")}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+              {automations.map((automation) => (
+                <AutomationCard key={automation.id} automation={automation} />
               ))}
             </div>
           )}
@@ -178,51 +215,28 @@ const Dashboard = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-gray-600">
-              Acompanhe suas campanhas de DM no Instagram
+              Acompanhe suas automações de DM no Instagram
             </p>
           </div>
           <Link to="/new">
-            <Button size="lg">Nova Campanha</Button>
+            <Button size="lg">Nova Automação</Button>
           </Link>
         </div>
 
-        {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Filtros</CardTitle>
-            <CardDescription>
-              Filtre suas postagens por legenda ou data
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Buscar na legenda..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="sm:w-48">
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <DashboardInsights />
 
-        {/* Posts Grid */}
+        <DashboardFilters
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          dateFilter={dateFilter}
+          onDateChange={setDateFilter}
+          accountFilter={accountFilter}
+          onAccountChange={setAccountFilter}
+          accounts={accounts}
+          isInMVPMode={false}
+        />
+
+        {/* Automations Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
@@ -235,19 +249,21 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-        ) : posts.length === 0 ? (
+        ) : automations.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 mb-4">
-              Nenhuma postagem encontrada com os filtros aplicados.
+              {searchTerm || dateFilter || accountFilter !== "all"
+                ? "Nenhuma automação encontrada com os filtros aplicados."
+                : "Você ainda não criou nenhuma automação."}
             </p>
             <Link to="/new">
-              <Button>Criar Nova Campanha</Button>
+              <Button>Criar Nova Automação</Button>
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
+            {automations.map((automation) => (
+              <AutomationCard key={automation.id} automation={automation} />
             ))}
           </div>
         )}

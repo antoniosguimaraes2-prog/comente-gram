@@ -13,9 +13,9 @@ serve(async (req) => {
   }
 
   try {
-    const { postUrl, keywords, dmTemplate } = await req.json()
+    const { name, accountId, postUrl, keywords, dmTemplate } = await req.json()
     
-    if (!postUrl || !keywords || !dmTemplate) {
+    if (!name || !postUrl || !keywords || !dmTemplate) {
       throw new Error('Missing required fields')
     }
 
@@ -38,15 +38,32 @@ serve(async (req) => {
       throw new Error('Invalid auth token')
     }
 
-    // Get user's account
-    const { data: account, error: accountError } = await supabase
-      .from('accounts')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
+    // Get user's account (either specified accountId or default account)
+    let account;
+    if (accountId) {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('id', accountId)
+        .single()
+      
+      if (error || !data) {
+        throw new Error('Invalid account selection')
+      }
+      account = data;
+    } else {
+      // Fallback to first account
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
 
-    if (accountError || !account) {
-      throw new Error('Instagram account not connected')
+      if (error || !data) {
+        throw new Error('Instagram account not connected')
+      }
+      account = data;
     }
 
     // Extract media_id from Instagram URL
@@ -75,6 +92,7 @@ serve(async (req) => {
       .upsert({
         account_id: account.id,
         media_id: mediaId,
+        name: name, // Add the automation name
         caption: postData.caption || null,
         thumbnail_url: postData.thumbnail_url || postData.media_url || null,
         posted_at: postData.timestamp || null,
@@ -114,6 +132,7 @@ serve(async (req) => {
         success: true,
         mediaId: mediaId,
         postId: post.id,
+        name: name,
         message: 'Campaign created successfully'
       }),
       {
