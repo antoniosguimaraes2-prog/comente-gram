@@ -7,11 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { enableMVPMode } from "@/lib/mvp";
 
 const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAuth = async (email: string, password: string, isSignUp: boolean) => {
     setLoading(true);
@@ -90,11 +93,12 @@ const AuthPage = () => {
         });
 
         if (signUpError) {
+          // Se falhou, entrar em modo MVP
           toast({
-            title: "Erro no Login de Teste",
-            description: `${signUpError.message}. Configure o Supabase: desabilite "Confirm email" e ajuste "Password minimum length" para 8 caracteres.`,
-            variant: "destructive",
+            title: "Entrando em Modo MVP",
+            description: "Acesso liberado para testes sem configuração do Supabase.",
           });
+          handleMVPMode();
         } else {
           toast({
             title: "Conta de teste criada!",
@@ -121,6 +125,15 @@ const AuthPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleMVPMode = () => {
+    enableMVPMode();
+    toast({
+      title: "Modo MVP ativado!",
+      description: "Você pode criar e testar automações sem conectar Instagram.",
+    });
+    navigate("/dashboard");
   };
 
   const AuthForm = ({ isSignUp }: { isSignUp: boolean }) => {
@@ -183,6 +196,16 @@ const AuthPage = () => {
         </CardHeader>
         <CardContent>
           <div className="mb-4 space-y-2">
+            <Button 
+              onClick={handleMVPMode} 
+              className="w-full" 
+              variant="default"
+              disabled={loading}
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Entrar sem login (Modo MVP)
+            </Button>
+            
             <Button 
               onClick={handleTestLogin} 
               className="w-full" 

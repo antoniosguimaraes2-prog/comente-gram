@@ -1,20 +1,27 @@
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useLocation } from "react-router-dom";
-import { LogOut, Instagram, BarChart3, Plus } from "lucide-react";
+import { LogOut, Instagram, BarChart3, Plus, Zap } from "lucide-react";
+import { disableMVPMode } from "@/lib/mvp";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  const { user } = useAuth();
+  const { user, isInMVPMode } = useAuth();
   const location = useLocation();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    if (isInMVPMode) {
+      disableMVPMode();
+      window.location.href = "/auth";
+    } else {
+      await supabase.auth.signOut();
+    }
   };
 
   const navItems = [
@@ -29,9 +36,17 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
-              <Link to="/dashboard" className="text-xl font-bold text-blue-600">
-                ComenteDM
-              </Link>
+              <div className="flex items-center space-x-3">
+                <Link to="/dashboard" className="text-xl font-bold text-blue-600">
+                  ComenteDM
+                </Link>
+                {isInMVPMode && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Zap className="w-3 h-3 mr-1" />
+                    Modo MVP
+                  </Badge>
+                )}
+              </div>
               <nav className="hidden md:flex space-x-6">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -53,7 +68,9 @@ const Layout = ({ children }: LayoutProps) => {
               </nav>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">{user?.email}</span>
+              <span className="text-sm text-gray-600">
+                {isInMVPMode ? "Modo MVP" : user?.email}
+              </span>
               <Button
                 variant="outline"
                 size="sm"

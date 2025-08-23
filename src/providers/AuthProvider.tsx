@@ -3,15 +3,18 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
+import { isMVPMode } from "@/lib/mvp";
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isInMVPMode: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  isInMVPMode: false,
 });
 
 export const useAuth = () => {
@@ -25,19 +28,26 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isInMVPMode, setIsInMVPMode] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    // Check MVP mode first
+    const mvpMode = isMVPMode();
+    setIsInMVPMode(mvpMode);
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Redirect logic
-      if (session?.user && location.pathname === "/auth") {
+      // Redirect logic - MVP mode bypasses auth requirements
+      if (mvpMode && location.pathname === "/auth") {
         navigate("/dashboard");
-      } else if (!session?.user && location.pathname !== "/auth") {
+      } else if (session?.user && location.pathname === "/auth") {
+        navigate("/dashboard");
+      } else if (!session?.user && !mvpMode && location.pathname !== "/auth") {
         navigate("/auth");
       }
     });
@@ -59,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [navigate, location.pathname]);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, isInMVPMode }}>
       {children}
     </AuthContext.Provider>
   );

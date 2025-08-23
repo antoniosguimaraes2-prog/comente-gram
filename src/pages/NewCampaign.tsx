@@ -7,11 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Instagram, AlertCircle } from "lucide-react";
+import { Loader2, Plus, Instagram, AlertCircle, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/providers/AuthProvider";
+import { addMVPAutomation } from "@/lib/mvp";
 
 const NewCampaign = () => {
   const [postUrl, setPostUrl] = useState("");
@@ -20,11 +23,14 @@ const NewCampaign = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isInMVPMode } = useAuth();
 
-  // Check if user has connected Instagram account
+  // Check if user has connected Instagram account (skip in MVP mode)
   const { data: account } = useQuery({
     queryKey: ["connected-account"],
     queryFn: async () => {
+      if (isInMVPMode) return null;
+      
       const { data, error } = await supabase
         .from("accounts")
         .select("*")
@@ -110,6 +116,23 @@ const NewCampaign = () => {
       return;
     }
 
+    // MVP Mode - save locally
+    if (isInMVPMode) {
+      addMVPAutomation({
+        postUrl: postUrl.trim(),
+        keywords: keywordList,
+        dmTemplate: dmTemplate.trim(),
+      });
+      
+      toast({
+        title: "✅ Automação de teste criada!",
+        description: "Sua automação foi salva localmente no modo MVP.",
+      });
+      navigate("/dashboard");
+      return;
+    }
+
+    // Regular mode - call API
     createCampaignMutation.mutate({
       postUrl: postUrl.trim(),
       keywords: keywordList,
@@ -121,7 +144,7 @@ const NewCampaign = () => {
     return "Exemplo: https://www.instagram.com/p/ABC123DEF/";
   };
 
-  if (!account) {
+  if (!account && !isInMVPMode) {
     return (
       <Layout>
         <div className="max-w-2xl mx-auto text-center py-12">
@@ -147,11 +170,21 @@ const NewCampaign = () => {
     <Layout>
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Nova Campanha
-          </h1>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {isInMVPMode ? "Nova Automação de Teste" : "Nova Campanha"}
+            </h1>
+            {isInMVPMode && (
+              <Badge variant="secondary">
+                <Zap className="w-3 h-3 mr-1" />
+                Modo MVP
+              </Badge>
+            )}
+          </div>
           <p className="text-gray-600">
-            Configure uma nova campanha de DM para uma postagem do Instagram
+            {isInMVPMode 
+              ? "Crie uma automação de teste (dados salvos localmente)" 
+              : "Configure uma nova campanha de DM para uma postagem do Instagram"}
           </p>
         </div>
 
@@ -162,7 +195,9 @@ const NewCampaign = () => {
               <span>Configuração da Campanha</span>
             </CardTitle>
             <CardDescription>
-              Preencha os dados abaixo para criar e ativar sua campanha
+              {isInMVPMode 
+                ? "Preencha os dados abaixo para simular uma automação (modo teste)"
+                : "Preencha os dados abaixo para criar e ativar sua campanha"}
             </CardDescription>
           </CardHeader>
           
@@ -179,7 +214,9 @@ const NewCampaign = () => {
                   required
                 />
                 <p className="text-sm text-gray-500">
-                  Cole o link completo da postagem do Instagram que você quer monitorar
+                  {isInMVPMode 
+                    ? "Cole qualquer link (simulação para teste)"
+                    : "Cole o link completo da postagem do Instagram que você quer monitorar"}
                 </p>
               </div>
 
@@ -193,7 +230,9 @@ const NewCampaign = () => {
                   required
                 />
                 <p className="text-sm text-gray-500">
-                  Separe as palavras-chave por vírgulas. Quando alguém comentar com essas palavras, receberá uma DM automática.
+                  {isInMVPMode 
+                    ? "Separe as palavras-chave por vírgulas (simulação para teste)"
+                    : "Separe as palavras-chave por vírgulas. Quando alguém comentar com essas palavras, receberá uma DM automática."}
                 </p>
               </div>
 
@@ -222,10 +261,10 @@ const NewCampaign = () => {
                 className="w-full"
                 disabled={createCampaignMutation.isPending}
               >
-                {createCampaignMutation.isPending && (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                )}
-                Criar e Ativar Campanha
+                  {createCampaignMutation.isPending && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
+                  {isInMVPMode ? "Criar Automação de Teste" : "Criar e Ativar Campanha"}
               </Button>
             </form>
           </CardContent>

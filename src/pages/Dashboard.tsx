@@ -5,19 +5,25 @@ import Layout from "@/components/Layout";
 import PostCard from "@/components/PostCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Calendar, Instagram } from "lucide-react";
+import { Search, Calendar, Instagram, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/providers/AuthProvider";
+import { getMVPAutomations } from "@/lib/mvp";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const { isInMVPMode } = useAuth();
 
-  // Check if user has connected Instagram account
+  // Check if user has connected Instagram account (skip in MVP mode)
   const { data: account } = useQuery({
     queryKey: ["connected-account"],
     queryFn: async () => {
+      if (isInMVPMode) return null;
+      
       const { data, error } = await supabase
         .from("accounts")
         .select("*")
@@ -68,6 +74,82 @@ const Dashboard = () => {
     enabled: !!account,
   });
 
+  // MVP Mode - show local automations
+  if (isInMVPMode) {
+    const mvpAutomations = getMVPAutomations();
+    
+    return (
+      <Layout>
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+                <Badge variant="secondary">
+                  <Zap className="w-3 h-3 mr-1" />
+                  Modo MVP
+                </Badge>
+              </div>
+              <p className="text-gray-600">
+                Teste suas automações localmente (dados salvos no navegador)
+              </p>
+            </div>
+            <Link to="/new">
+              <Button size="lg">Nova Automação de Teste</Button>
+            </Link>
+          </div>
+
+          {mvpAutomations.length === 0 ? (
+            <div className="text-center py-12">
+              <Zap className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Crie sua primeira automação de teste
+              </h2>
+              <p className="text-gray-600 mb-6">
+                No modo MVP você pode testar o fluxo completo sem conectar Instagram.
+              </p>
+              <Link to="/new">
+                <Button size="lg">Criar Automação de Teste</Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mvpAutomations.map((automation) => (
+                <Card key={automation.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Zap className="w-4 h-4" />
+                      Automação de Teste
+                    </CardTitle>
+                    <CardDescription className="line-clamp-2">
+                      {automation.postUrl}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Palavras-chave:</p>
+                        <p className="text-sm text-gray-600">{automation.keywords.join(", ")}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Mensagem:</p>
+                        <p className="text-sm text-gray-600 line-clamp-2">{automation.dmTemplate}</p>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Criado: {new Date(automation.createdAt).toLocaleDateString("pt-BR")}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </Layout>
+    );
+  }
+
+  // Regular mode - check Instagram connection
   if (!account) {
     return (
       <Layout>
