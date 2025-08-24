@@ -341,13 +341,16 @@ const ConnectInstagram = () => {
 
                   <Button
                     onClick={handleConnect}
-                    disabled={connecting}
+                    disabled={connecting || isCheckingConfig || !configStatus?.isConfigured}
                     size="lg"
                     className="w-full"
                   >
                     {connecting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     <Instagram className="w-4 h-4 mr-2" />
-                    {connecting ? 'Conectando...' : 'Conectar Instagram'}
+                    {connecting ? 'Conectando...' :
+                     isCheckingConfig ? 'Verificando...' :
+                     !configStatus?.isConfigured ? 'Configure primeiro' :
+                     'Conectar Instagram'}
                   </Button>
 
                   <p className="text-xs text-gray-500 text-center">
