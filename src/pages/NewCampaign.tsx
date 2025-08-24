@@ -146,14 +146,15 @@ const NewCampaign = () => {
       }
 
       // Create campaigns for each selected post
-      const promises = finalData.selectedPosts.map(post => 
+      const promises = finalData.selectedPosts.map(post =>
         supabase.functions.invoke("create-campaign", {
           body: {
             name: `${finalData.name} - ${post.id}`,
             postUrl: `https://instagram.com/p/${post.id}`,
             keywords: finalData.keywords,
             dmTemplate: finalData.messageContent,
-            listenAllComments: finalData.listenAllComments
+            listenAllComments: finalData.listenAllComments,
+            messageType: finalData.messageType
           },
         })
       );
