@@ -14,6 +14,7 @@ import GoogleIcon from "@/components/GoogleIcon";
 
 const AuthPage = () => {
   const [loading, setLoading] = useState(false);
+  const [showOAuthInfo, setShowOAuthInfo] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
