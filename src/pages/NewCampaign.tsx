@@ -554,7 +554,7 @@ const NewCampaign = () => {
                         onClick={() => setCampaignData(prev => ({ ...prev, messageType: 'link' }))}
                         className="flex flex-col items-center p-4 h-auto"
                       >
-                        <Link className="w-6 h-6 mb-2" />
+                        <LinkIcon className="w-6 h-6 mb-2" />
                         <span>Com Link</span>
                       </Button>
                       <Button
