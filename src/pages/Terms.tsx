@@ -324,7 +324,7 @@ const Terms = () => {
               Ao criar sua conta, você concorda com estes termos e nossa política de privacidade.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/auth">
+              <Link to="/auth" onClick={scrollToTop}>
                 <Button>
                   Criar Conta Grátis
                 </Button>
