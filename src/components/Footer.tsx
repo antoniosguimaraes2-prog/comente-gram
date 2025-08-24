@@ -30,8 +30,8 @@ const Footer = () => {
             <h3 className="text-lg font-semibold">Produto</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/campaigns" className="text-gray-400 hover:text-white transition-colors">
-                  Campanhas
+                <Link to="/home" className="text-gray-400 hover:text-white transition-colors">
+                  Início
                 </Link>
               </li>
               <li>
@@ -40,8 +40,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/connect-instagram" className="text-gray-400 hover:text-white transition-colors">
-                  Conectar Instagram
+                <Link to="/auth" className="text-gray-400 hover:text-white transition-colors">
+                  Entrar
                 </Link>
               </li>
               <li>
