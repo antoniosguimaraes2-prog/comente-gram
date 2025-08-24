@@ -9,7 +9,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/home" className="flex items-center space-x-2 hover:opacity-80 transition-opacity" onClick={scrollToTop}>
@@ -48,38 +48,6 @@ const Footer = () => {
                   Entrar
                 </Link>
               </li>
-              <li>
-                <a href="#recursos" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>
-                  Recursos
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Suporte */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Suporte</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link to="/auth" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>
-                  Fazer Login
-                </Link>
-              </li>
-              <li>
-                <Link to="/pricing" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>
-                  Ver Planos
-                </Link>
-              </li>
-              <li>
-                <a href="mailto:suporte@comentedm.com" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>
-                  Contato
-                </a>
-              </li>
-              <li>
-                <a href="https://status.comentedm.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>
-                  Status do Sistema
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -96,16 +64,6 @@ const Footer = () => {
                 <Link to="/terms" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>
                   Termos de Uso
                 </Link>
-              </li>
-              <li>
-                <a href="#cookies" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>
-                  Política de Cookies
-                </a>
-              </li>
-              <li>
-                <a href="#lgpd" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>
-                  LGPD
-                </a>
               </li>
             </ul>
           </div>
