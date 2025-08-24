@@ -987,11 +987,31 @@ const NewCampaign = () => {
                       <span className="text-sm text-gray-900">{campaignData.name}</span>
                     </div>
 
-                    <div className="px-6 py-4 flex justify-between">
-                      <span className="text-sm font-medium text-gray-500">Publicações</span>
-                      <span className="text-sm text-gray-900">
-                        {campaignData.selectedPosts.length} selecionada(s)
-                      </span>
+                    <div className="px-6 py-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm font-medium text-gray-500">Publicações</span>
+                        <span className="text-sm text-gray-900">
+                          {campaignData.selectedPosts.length} selecionada(s)
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {campaignData.selectedPosts.map(post => (
+                          <div key={post.id} className="relative">
+                            <img
+                              src={post.thumbnail_url || post.media_url}
+                              alt="Post selecionado"
+                              className="w-12 h-12 object-cover rounded border border-gray-200"
+                            />
+                            <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full flex items-center justify-center text-white text-xs">
+                              {post.media_type === 'VIDEO' ? (
+                                <Video className="w-2 h-2 text-gray-600" />
+                              ) : (
+                                <Image className="w-2 h-2 text-gray-600" />
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     <div className="px-6 py-4">
