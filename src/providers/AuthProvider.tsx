@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,9 +43,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // Redirect logic - MVP mode bypasses auth requirements
       if (mvpMode && location.pathname === "/auth") {
-        navigate("/dashboard");
+        navigate("/campaigns");
       } else if (session?.user && location.pathname === "/auth") {
-        navigate("/dashboard");
+        navigate("/campaigns");
       } else if (!session?.user && !mvpMode && location.pathname !== "/auth") {
         navigate("/auth");
       }
@@ -58,7 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (event === "SIGNED_IN" && session?.user) {
-          navigate("/dashboard");
+          navigate("/campaigns");
         } else if (event === "SIGNED_OUT") {
           navigate("/auth");
         }
