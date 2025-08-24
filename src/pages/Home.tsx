@@ -76,12 +76,18 @@ const Home = () => {
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
-                <Link to="/?mvp=true">
-                  <Button variant="outline" size="lg" className="text-lg px-8 h-12">
-                    <Play className="w-5 h-5 mr-2" />
-                    Usar sem Login
-                  </Button>
-                </Link>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="text-lg px-8 h-12"
+                  onClick={() => {
+                    localStorage.setItem('comente_dm_mvp_mode', 'true');
+                    window.location.href = '/';
+                  }}
+                >
+                  <Play className="w-5 h-5 mr-2" />
+                  Usar sem Login
+                </Button>
               </div>
 
               <div className="flex items-center space-x-6 text-sm text-gray-600">
