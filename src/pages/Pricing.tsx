@@ -485,6 +485,32 @@ const Pricing = () => {
               </p>
             </div>
 
+            {/* Inline CTA */}
+            <div className="my-12 p-6 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl border-2 border-blue-200">
+              <div className="text-center space-y-4">
+                <h4 className="text-lg font-semibold text-gray-900">
+                  Ainda tem dúvidas? Comece com o Basic!
+                </h4>
+                <p className="text-gray-600 text-sm">
+                  Teste nossa plataforma com 1.000 DMs por apenas R$ 22/mês
+                </p>
+                <Link
+                  to="/checkout"
+                  onClick={scrollToTop}
+                  state={{
+                    plan: "Basic",
+                    price: isAnnual ? 18 : 22,
+                    billing: isAnnual ? 'annual' : 'monthly'
+                  }}
+                >
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    Começar com Basic
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">O plano gratuito tem limitações?</h3>
               <p className="text-gray-600">
