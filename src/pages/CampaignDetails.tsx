@@ -94,7 +94,6 @@ const CampaignDetails = () => {
       
       setLoading(false);
     } catch (err) {
-      console.error('Erro ao carregar campanha:', err);
       setError('Erro ao carregar dados da campanha');
       setLoading(false);
     }
