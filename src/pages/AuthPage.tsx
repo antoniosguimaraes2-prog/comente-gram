@@ -11,6 +11,8 @@ import { Loader2, Zap, AlertCircle, Instagram } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { enableMVPMode } from "@/lib/mvp";
 import GoogleIcon from "@/components/GoogleIcon";
+import { useAuthConfig } from "@/hooks/use-auth-config";
+import { getGoogleConsoleInstructions } from "@/lib/auth-config";
 
 const AuthPage = () => {
   const [loading, setLoading] = useState(false);
