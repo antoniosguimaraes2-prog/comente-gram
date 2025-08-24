@@ -89,9 +89,23 @@ const Campaigns = () => {
       if (isInMVPMode) {
         let automations = getMVPAutomations();
 
-        // Se não há campanhas MVP, criar uma de exemplo
+        // Se não há campanhas MVP, criar duas de exemplo
         if (automations.length === 0) {
           createExampleCampaign();
+
+          // Criar uma segunda campanha com "todos os comentários"
+          addMVPAutomation({
+            name: 'Campanha - Todos os Comentários',
+            accountName: 'Minha Conta Instagram',
+            postUrl: 'https://instagram.com/p/exemplo456',
+            keywords: [], // vazio quando listenAllComments é true
+            dmTemplate: 'Obrigado pelo seu comentário! 🙏\n\nEstou sempre disponível para conversar. Me manda uma DM que te respondo rapidinho! 💬',
+            messageType: 'link',
+            linkUrl: 'https://meusite.com/contato',
+            active: true,
+            listenAllComments: true
+          });
+
           automations = getMVPAutomations();
         }
 
