@@ -1014,22 +1014,16 @@ const NewCampaign = () => {
                       </div>
                     </div>
 
-                    <div className="px-6 py-4">
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-500">Monitoramento</span>
-                        <span className="text-sm text-gray-900">
-                          {campaignData.listenAllComments ? 'Todos os comentários' : 'Palavras-chave específicas'}
-                        </span>
-                      </div>
-                      {!campaignData.listenAllComments && campaignData.keywords.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {campaignData.keywords.map(keyword => (
-                            <Badge key={keyword} variant="secondary" className="text-xs">
-                              #{keyword}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
+                    <div className="px-6 py-4 flex justify-between">
+                      <span className="text-sm font-medium text-gray-500">Monitoramento</span>
+                      <span className="text-sm text-gray-900">
+                        {campaignData.listenAllComments
+                          ? 'Todos os comentários'
+                          : campaignData.keywords.length > 0
+                            ? campaignData.keywords.map(keyword => `#${keyword}`).join(' ')
+                            : 'Nenhuma palavra-chave'
+                        }
+                      </span>
                     </div>
 
                     <div className="px-6 py-4">
