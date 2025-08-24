@@ -115,19 +115,21 @@ serve(async (req) => {
       .delete()
       .eq('post_id', post.id)
 
-    // Insert new keywords
-    const keywordInserts = keywords.map((word: string) => ({
-      post_id: post.id,
-      word: word.toLowerCase().trim(),
-      active_bool: true,
-    }))
+    // Insert keywords only if not listening to all comments
+    if (!listenAllComments && keywords && keywords.length > 0) {
+      const keywordInserts = keywords.map((word: string) => ({
+        post_id: post.id,
+        word: word.toLowerCase().trim(),
+        active_bool: true,
+      }))
 
-    const { error: keywordsError } = await supabase
-      .from('keywords')
-      .insert(keywordInserts)
+      const { error: keywordsError } = await supabase
+        .from('keywords')
+        .insert(keywordInserts)
 
-    if (keywordsError) {
-      throw new Error(`Failed to save keywords: ${keywordsError.message}`)
+      if (keywordsError) {
+        throw new Error(`Failed to save keywords: ${keywordsError.message}`)
+      }
     }
 
     return new Response(
