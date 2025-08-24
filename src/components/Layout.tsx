@@ -15,6 +15,10 @@ const Layout = ({ children }: LayoutProps) => {
   const { user, isInMVPMode } = useAuth();
   const location = useLocation();
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleLogout = async () => {
     if (isInMVPMode) {
       disableMVPMode();
