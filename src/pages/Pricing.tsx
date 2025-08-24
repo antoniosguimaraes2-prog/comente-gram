@@ -22,6 +22,10 @@ import Footer from "@/components/Footer";
 const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(false);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const plans = [
     {
       name: "Starter",
