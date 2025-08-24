@@ -28,31 +28,47 @@ const Pricing = () => {
 
   const plans = [
     {
-      name: "Starter",
+      name: "Gratuito",
       description: "Perfeito para começar",
-      priceMonthly: 47,
-      priceAnnual: 39,
+      priceMonthly: 0,
+      priceAnnual: 0,
       kiwifyUrl: "https://pay.kiwify.com.br/I3yr8ml",
       features: [
         "1 conta Instagram",
         "Até 100 DMs/mês",
         "3 campanhas ativas",
         "Palavras-chave ilimitadas",
-        "Analytics básicos",
-        "Suporte por email"
+        "Analytics básicos"
       ],
       highlight: false,
-      cta: "Começar Agora"
+      cta: "Começar Grátis",
+      isFree: true
     },
     {
-      name: "Professional",
+      name: "Basic",
+      description: "Para pequenos negócios",
+      priceMonthly: 22,
+      priceAnnual: 18,
+      kiwifyUrl: "https://pay.kiwify.com.br/basic",
+      features: [
+        "1 conta Instagram",
+        "Até 1.000 DMs/mês",
+        "Campanhas ilimitadas",
+        "Palavras-chave ilimitadas",
+        "Analytics básicos"
+      ],
+      highlight: false,
+      cta: "Escolher Basic"
+    },
+    {
+      name: "Pro",
       description: "Para negócios em crescimento",
-      priceMonthly: 97,
-      priceAnnual: 81,
-      kiwifyUrl: "https://pay.kiwify.com.br/p3DiSE2",
+      priceMonthly: 67,
+      priceAnnual: 56,
+      kiwifyUrl: "https://pay.kiwify.com.br/pro",
       features: [
         "3 contas Instagram",
-        "Até 1.000 DMs/mês",
+        "Até 5.000 DMs/mês",
         "Campanhas ilimitadas",
         "Palavras-chave ilimitadas",
         "Analytics avançados",
@@ -64,11 +80,11 @@ const Pricing = () => {
       cta: "Mais Popular"
     },
     {
-      name: "Enterprise",
-      description: "Para grandes empresas",
-      priceMonthly: 197,
-      priceAnnual: 164,
-      kiwifyUrl: "https://pay.kiwify.com.br/YFtrvqI",
+      name: "Agência",
+      description: "Soluções personalizadas",
+      priceMonthly: null,
+      priceAnnual: null,
+      kiwifyUrl: null,
       features: [
         "Contas ilimitadas",
         "DMs ilimitadas",
@@ -78,10 +94,12 @@ const Pricing = () => {
         "API access",
         "Suporte dedicado",
         "Onboarding personalizado",
-        "SLA garantido"
+        "SLA garantido",
+        "Gestão de conta dedicada"
       ],
       highlight: false,
-      cta: "Falar com Vendas"
+      cta: "Falar com Time",
+      isCustom: true
     }
   ];
 
@@ -179,16 +197,32 @@ const Pricing = () => {
                   <CardDescription className="text-base">{plan.description}</CardDescription>
                   
                   <div className="space-y-2">
-                    <div className="flex items-baseline justify-center space-x-1">
-                      <span className="text-4xl font-bold">
-                        R$ {isAnnual ? plan.priceAnnual : plan.priceMonthly}
-                      </span>
-                      <span className="text-gray-500">/mês</span>
-                    </div>
-                    {isAnnual && (
-                      <p className="text-sm text-green-600">
-                        Economize R$ {(plan.priceMonthly - plan.priceAnnual) * 12}/ano
-                      </p>
+                    {plan.isCustom ? (
+                      <div className="flex items-baseline justify-center space-x-1">
+                        <span className="text-2xl font-bold text-gray-900">
+                          Sob consulta
+                        </span>
+                      </div>
+                    ) : plan.isFree ? (
+                      <div className="flex items-baseline justify-center space-x-1">
+                        <span className="text-4xl font-bold text-green-600">
+                          Grátis
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-baseline justify-center space-x-1">
+                          <span className="text-4xl font-bold">
+                            R$ {isAnnual ? plan.priceAnnual : plan.priceMonthly}
+                          </span>
+                          <span className="text-gray-500">/mês</span>
+                        </div>
+                        {isAnnual && (
+                          <p className="text-sm text-green-600">
+                            Economize R$ {(plan.priceMonthly - plan.priceAnnual) * 12}/ano
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
                 </CardHeader>
@@ -203,26 +237,43 @@ const Pricing = () => {
                     ))}
                   </div>
 
-                  <Link
-                    to="/checkout"
-                    onClick={scrollToTop}
-                    state={{
-                      plan: plan.name,
-                      price: isAnnual ? plan.priceAnnual : plan.priceMonthly,
-                      billing: isAnnual ? 'annual' : 'monthly'
-                    }}
-                  >
+                  {plan.isCustom ? (
                     <Button
-                      className={`w-full h-12 ${
-                        plan.highlight
-                          ? 'bg-purple-600 hover:bg-purple-700'
-                          : 'bg-gray-900 hover:bg-gray-800'
-                      }`}
+                      className="w-full h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      onClick={() => window.open('mailto:vendas@comentedm.com.br?subject=Interesse no Plano Agência', '_blank')}
                     >
                       {plan.cta}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
-                  </Link>
+                  ) : plan.isFree ? (
+                    <Link to="/auth" onClick={scrollToTop}>
+                      <Button className="w-full h-12 bg-green-600 hover:bg-green-700">
+                        {plan.cta}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/checkout"
+                      onClick={scrollToTop}
+                      state={{
+                        plan: plan.name,
+                        price: isAnnual ? plan.priceAnnual : plan.priceMonthly,
+                        billing: isAnnual ? 'annual' : 'monthly'
+                      }}
+                    >
+                      <Button
+                        className={`w-full h-12 ${
+                          plan.highlight
+                            ? 'bg-purple-600 hover:bg-purple-700'
+                            : 'bg-gray-900 hover:bg-gray-800'
+                        }`}
+                      >
+                        {plan.cta}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -248,14 +299,16 @@ const Pricing = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Recursos</th>
-                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Starter</th>
-                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Professional</th>
-                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Enterprise</th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Gratuito</th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Basic</th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Pro</th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Agência</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   <tr>
                     <td className="px-6 py-4 text-sm text-gray-900">Contas Instagram</td>
+                    <td className="px-6 py-4 text-center text-sm">1</td>
                     <td className="px-6 py-4 text-center text-sm">1</td>
                     <td className="px-6 py-4 text-center text-sm">3</td>
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
@@ -264,11 +317,13 @@ const Pricing = () => {
                     <td className="px-6 py-4 text-sm text-gray-900">DMs por mês</td>
                     <td className="px-6 py-4 text-center text-sm">100</td>
                     <td className="px-6 py-4 text-center text-sm">1.000</td>
+                    <td className="px-6 py-4 text-center text-sm">5.000</td>
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                   </tr>
                   <tr>
                     <td className="px-6 py-4 text-sm text-gray-900">Campanhas ativas</td>
                     <td className="px-6 py-4 text-center text-sm">3</td>
+                    <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                   </tr>
@@ -277,15 +332,18 @@ const Pricing = () => {
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
+                    <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr>
                     <td className="px-6 py-4 text-sm text-gray-900">Analytics avançados</td>
+                    <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="bg-gray-50">
                     <td className="px-6 py-4 text-sm text-gray-900">Automação com botões</td>
+                    <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
@@ -294,11 +352,13 @@ const Pricing = () => {
                     <td className="px-6 py-4 text-sm text-gray-900">API Access</td>
                     <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
+                    <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="bg-gray-50">
                     <td className="px-6 py-4 text-sm text-gray-900">Suporte</td>
-                    <td className="px-6 py-4 text-center text-sm">Email</td>
+                    <td className="px-6 py-4 text-center text-sm">—</td>
+                    <td className="px-6 py-4 text-center text-sm">—</td>
                     <td className="px-6 py-4 text-center text-sm">Prioritário</td>
                     <td className="px-6 py-4 text-center text-sm">Dedicado</td>
                   </tr>
