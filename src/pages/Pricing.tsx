@@ -26,8 +26,9 @@ const Pricing = () => {
     {
       name: "Starter",
       description: "Perfeito para começar",
-      priceMonthly: 29,
-      priceAnnual: 24,
+      priceMonthly: 47,
+      priceAnnual: 39,
+      kiwifyUrl: "https://pay.kiwify.com.br/I3yr8ml",
       features: [
         "1 conta Instagram",
         "Até 100 DMs/mês",
@@ -37,13 +38,14 @@ const Pricing = () => {
         "Suporte por email"
       ],
       highlight: false,
-      cta: "Começar Grátis"
+      cta: "Começar Agora"
     },
     {
       name: "Professional",
       description: "Para negócios em crescimento",
-      priceMonthly: 79,
-      priceAnnual: 65,
+      priceMonthly: 97,
+      priceAnnual: 81,
+      kiwifyUrl: "https://pay.kiwify.com.br/p3DiSE2",
       features: [
         "3 contas Instagram",
         "Até 1.000 DMs/mês",
@@ -60,8 +62,9 @@ const Pricing = () => {
     {
       name: "Enterprise",
       description: "Para grandes empresas",
-      priceMonthly: 199,
-      priceAnnual: 165,
+      priceMonthly: 197,
+      priceAnnual: 164,
+      kiwifyUrl: "https://pay.kiwify.com.br/YFtrvqI",
       features: [
         "Contas ilimitadas",
         "DMs ilimitadas",
