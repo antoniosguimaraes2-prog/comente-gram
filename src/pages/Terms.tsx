@@ -329,7 +329,7 @@ const Terms = () => {
                   Criar Conta Grátis
                 </Button>
               </Link>
-              <Link to="/privacy">
+              <Link to="/privacy" onClick={scrollToTop}>
                 <Button variant="outline">
                   Ver Política de Privacidade
                 </Button>
