@@ -27,6 +27,7 @@ interface AutomationCardProps {
 
 const AutomationCard = ({ automation }: AutomationCardProps) => {
   const { isInMVPMode } = useAuth();
+  const navigate = useNavigate();
 
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "Data não disponível";
