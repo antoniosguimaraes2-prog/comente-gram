@@ -480,8 +480,26 @@ const Pricing = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">O que acontece se eu exceder o limite de DMs?</h3>
               <p className="text-gray-600">
-                Quando você atinge 80% do limite, enviamos um aviso. Se exceder 100%, 
-                as automações são pausadas até o próximo ciclo de cobrança ou upgrade do plano.
+                Quando você atinge 80% do limite, enviamos um aviso. Se exceder 100%,
+                as automações são pausadas até o próximo ciclo de cobrança, upgrade do plano ou
+                compra de mensagens adicionais.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Como funcionam as mensagens adicionais?</h3>
+              <p className="text-gray-600">
+                Você pode comprar pacotes de 1.000 mensagens extras por R$ 12,00 sem alterar seu plano atual.
+                Essas mensagens são válidas por 30 dias e são consumidas automaticamente quando você excede
+                seu limite mensal.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">O plano gratuito tem limitações?</h3>
+              <p className="text-gray-600">
+                O plano gratuito oferece até 100 DMs por mês, 1 conta Instagram e 3 campanhas ativas.
+                É perfeito para testar a plataforma e pequenos negócios que estão começando.
               </p>
             </div>
 
