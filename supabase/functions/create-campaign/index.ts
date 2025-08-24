@@ -103,6 +103,8 @@ serve(async (req) => {
         dm_template: dmTemplate,
         listen_all_comments: listenAllComments || false,
         message_type: messageType || 'simple',
+        link_url: linkUrl || null,
+        buttons: buttons ? JSON.stringify(buttons) : null,
       })
       .select()
       .single()
