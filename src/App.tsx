@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/providers/AuthProvider";
 import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
+import Campaigns from "./pages/Campaigns";
 import ConnectInstagram from "./pages/ConnectInstagram";
 import NewCampaign from "./pages/NewCampaign";
 import PostDetails from "./pages/PostDetails";
