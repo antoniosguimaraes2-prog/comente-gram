@@ -354,14 +354,17 @@ const Pricing = () => {
             <p className="text-xl">
               Escolha seu plano e comece a converter comentários em vendas hoje mesmo
             </p>
-            <Link to="/auth">
-              <Button size="lg" variant="secondary" className="text-lg px-8 h-12">
-                Começar Teste Grátis
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="text-lg px-8 h-12"
+              onClick={() => window.open('https://pay.kiwify.com.br/p3DiSE2', '_blank')}
+            >
+              Começar Agora
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
             <p className="text-sm opacity-80">
-              7 dias grátis • Sem cartão de crédito • Cancelamento a qualquer momento
+              Garantia de 7 dias • Suporte completo • Resultados garantidos
             </p>
           </div>
         </div>
