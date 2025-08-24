@@ -283,6 +283,34 @@ const Pricing = () => {
         </div>
       </section>
 
+      {/* Basic Plan CTA */}
+      <section className="py-16 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              Comece com o plano Basic
+            </h2>
+            <p className="text-lg text-gray-600">
+              Apenas R$ 22/mês para automatizar até 1.000 DMs e crescer seu negócio
+            </p>
+            <Link
+              to="/checkout"
+              onClick={scrollToTop}
+              state={{
+                plan: "Basic",
+                price: isAnnual ? 18 : 22,
+                billing: isAnnual ? 'annual' : 'monthly'
+              }}
+            >
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 h-12">
+                Escolher Plano Basic
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Features Comparison */}
       <section className="bg-gray-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
