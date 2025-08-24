@@ -1,22 +1,27 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  CheckCircle, 
-  Instagram, 
+import { useAuth } from "@/providers/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  CheckCircle,
+  Instagram,
   CreditCard,
   Shield,
   ArrowLeft,
   Lock,
   Calendar,
   User,
-  Mail
+  Mail,
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
