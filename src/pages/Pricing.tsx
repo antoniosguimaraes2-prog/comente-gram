@@ -369,6 +369,93 @@ const Pricing = () => {
         </div>
       </section>
 
+      {/* Additional Messages Section */}
+      <section className="py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4 mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
+              Mensagens Adicionais
+            </h2>
+            <p className="text-xl text-gray-600">
+              Excedeu seu limite? Compre mensagens avulsas sem mudar de plano
+            </p>
+          </div>
+
+          <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
+            <CardHeader className="text-center pb-6">
+              <div className="flex items-center justify-center space-x-2 mb-4">
+                <Zap className="w-8 h-8 text-purple-600" />
+                <CardTitle className="text-2xl font-bold text-gray-900">
+                  Pacotes de Mensagens
+                </CardTitle>
+              </div>
+              <CardDescription className="text-lg">
+                Flexibilidade total para seus picos de demanda
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <div className="bg-white rounded-xl p-6 shadow-sm border">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">1.000 Mensagens Extras</h3>
+                    <p className="text-gray-600">Válidas por 30 dias a partir da compra</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-purple-600">R$ 12</div>
+                    <div className="text-sm text-gray-500">único</div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Compra avulsa, sem alterar seu plano</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Ativação automática quando exceder o limite</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Ideal para campanhas sazonais ou picos de demanda</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="text-yellow-600 mt-0.5">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-yellow-800">Como funciona</h4>
+                    <p className="text-sm text-yellow-700 mt-1">
+                      Quando você atingir 100% do seu limite mensal de mensagens, suas automações serão pausadas.
+                      Você pode comprar pacotes de 1.000 mensagens adicionais por R$ 12 para continuar operando
+                      sem interrupções, mantendo seu plano atual.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  onClick={() => window.open('mailto:vendas@comentedm.com.br?subject=Interesse em Mensagens Adicionais', '_blank')}
+                >
+                  Comprar Mensagens Extras
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* FAQ Section */}
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
