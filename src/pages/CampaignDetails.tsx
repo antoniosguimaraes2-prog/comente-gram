@@ -76,10 +76,7 @@ const CampaignDetails = () => {
       }
 
       const campaigns = getMVPAutomations();
-      console.log('Campanhas disponíveis:', campaigns);
-      
       const foundCampaign = campaigns.find(c => c.id === campaignId);
-      console.log('Campanha encontrada:', foundCampaign);
       
       if (foundCampaign) {
         setCampaign(foundCampaign);
