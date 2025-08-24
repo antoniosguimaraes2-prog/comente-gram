@@ -87,6 +87,8 @@ const Campaigns = () => {
     queryKey: ["campaigns", searchTerm, statusFilter, dateFilter],
     queryFn: async () => {
       if (isInMVPMode) {
+        // Clean up any duplicate IDs first
+        cleanupDuplicateAutomations();
         let automations = getMVPAutomations();
 
         // Se não há campanhas MVP, criar duas de exemplo
