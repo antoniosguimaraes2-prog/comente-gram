@@ -294,6 +294,31 @@ const NewCampaign = () => {
     }));
   };
 
+  const addButton = () => {
+    if (campaignData.buttons.length < 2) {
+      setCampaignData(prev => ({
+        ...prev,
+        buttons: [...prev.buttons, { name: '', url: '', responseMessage: '' }]
+      }));
+    }
+  };
+
+  const updateButton = (index: number, field: keyof Button, value: string) => {
+    setCampaignData(prev => ({
+      ...prev,
+      buttons: prev.buttons.map((button, i) =>
+        i === index ? { ...button, [field]: value } : button
+      )
+    }));
+  };
+
+  const removeButton = (index: number) => {
+    setCampaignData(prev => ({
+      ...prev,
+      buttons: prev.buttons.filter((_, i) => i !== index)
+    }));
+  };
+
   if (!isInMVPMode && accounts.length === 0) {
     return (
       <Layout>
