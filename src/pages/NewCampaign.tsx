@@ -835,7 +835,11 @@ const NewCampaign = () => {
 
                   <div>
                     <Label className="text-sm font-medium text-gray-500">Tipo de Mensagem</Label>
-                    <p className="text-sm capitalize">{campaignData.messageType}</p>
+                    <p className="text-sm capitalize">
+                      {campaignData.messageType === 'simple' && 'Mensagem Simples'}
+                      {campaignData.messageType === 'link' && 'Mensagem com Link'}
+                      {campaignData.messageType === 'button' && 'Mensagem com Botão'}
+                    </p>
                   </div>
 
                   <div>
@@ -844,6 +848,36 @@ const NewCampaign = () => {
                       <p className="text-sm whitespace-pre-wrap">{campaignData.messageContent}</p>
                     </div>
                   </div>
+
+                  {campaignData.messageType === 'link' && campaignData.linkUrl && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Link da Mensagem</Label>
+                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-blue-800">{campaignData.linkUrl}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {campaignData.messageType === 'button' && campaignData.buttons.length > 0 && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Botões Configurados</Label>
+                      <div className="space-y-2">
+                        {campaignData.buttons.map((button, index) => (
+                          <div key={index} className="p-3 bg-green-50 rounded-lg border border-green-200">
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium text-green-800">
+                                Botão {index + 1}: "{button.name}"
+                              </p>
+                              <p className="text-xs text-green-600">Link: {button.url}</p>
+                              <p className="text-xs text-green-600">
+                                Resposta: {button.responseMessage}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
