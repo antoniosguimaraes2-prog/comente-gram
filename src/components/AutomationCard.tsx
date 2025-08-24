@@ -44,16 +44,6 @@ const AutomationCard = ({ automation }: AutomationCardProps) => {
   const displayKeywords = automation.keywords?.join(", ") || "Nenhuma palavra-chave";
   const displayMessage = truncateText(automation.dmTemplate || automation.caption);
 
-  // Debug logging
-  const analyticsUrl = isInMVPMode ? `/automations/${automation.id}` : `/posts/${automation.media_id}`;
-  console.log('AutomationCard Debug:', {
-    isInMVPMode,
-    automationId: automation.id,
-    mediaId: automation.media_id,
-    analyticsUrl,
-    automation
-  });
-
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="p-4">
