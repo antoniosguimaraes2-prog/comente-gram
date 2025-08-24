@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +43,16 @@ const AutomationCard = ({ automation }: AutomationCardProps) => {
   const displayAccount = isInMVPMode ? automation.accountName : "Conta conectada";
   const displayKeywords = automation.keywords?.join(", ") || "Nenhuma palavra-chave";
   const displayMessage = truncateText(automation.dmTemplate || automation.caption);
+
+  // Debug logging
+  const analyticsUrl = isInMVPMode ? `/automations/${automation.id}` : `/posts/${automation.media_id}`;
+  console.log('AutomationCard Debug:', {
+    isInMVPMode,
+    automationId: automation.id,
+    mediaId: automation.media_id,
+    analyticsUrl,
+    automation
+  });
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
