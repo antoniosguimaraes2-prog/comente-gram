@@ -319,7 +319,7 @@ const Pricing = () => {
                     <td className="px-6 py-4 text-sm text-gray-900">DMs por mês</td>
                     <td className="px-6 py-4 text-center text-sm">100</td>
                     <td className="px-6 py-4 text-center text-sm">1.000</td>
-                    <td className="px-6 py-4 text-center text-sm">5.000</td>
+                    <td className="px-6 py-4 text-center text-sm">8.000</td>
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                   </tr>
                   <tr>
