@@ -248,6 +248,39 @@ const NewCampaign = () => {
           });
           return false;
         }
+
+        if (campaignData.messageType === 'link' && !campaignData.linkUrl.trim()) {
+          toast({
+            title: "Erro",
+            description: "Digite o link para a mensagem.",
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        if (campaignData.messageType === 'button') {
+          if (campaignData.buttons.length === 0) {
+            toast({
+              title: "Erro",
+              description: "Adicione pelo menos um botão.",
+              variant: "destructive",
+            });
+            return false;
+          }
+
+          for (let i = 0; i < campaignData.buttons.length; i++) {
+            const button = campaignData.buttons[i];
+            if (!button.name.trim() || !button.url.trim() || !button.responseMessage.trim()) {
+              toast({
+                title: "Erro",
+                description: `Preencha todos os campos do botão ${i + 1}.`,
+                variant: "destructive",
+              });
+              return false;
+            }
+          }
+        }
+
         return true;
       default:
         return true;
