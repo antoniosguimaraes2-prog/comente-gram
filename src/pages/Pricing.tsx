@@ -514,8 +514,8 @@ const Pricing = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Como funciona o suporte?</h3>
               <p className="text-gray-600">
-                Plano Starter: suporte por email (resposta em até 24h). Professional: 
-                suporte prioritário (resposta em até 4h). Enterprise: suporte dedicado com SLA.
+                Planos Gratuito e Basic: sem suporte incluso. Plano Pro:
+                suporte prioritário (resposta em até 4h). Plano Agência: suporte dedicado com SLA.
               </p>
             </div>
           </div>
