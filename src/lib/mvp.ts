@@ -26,6 +26,7 @@ export interface MVPAutomation {
   linkUrl?: string;
   buttons?: Button[];
   createdAt: string;
+  active?: boolean;
 }
 
 const MVP_KEY = 'comente_dm_mvp_mode';
