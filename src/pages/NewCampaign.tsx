@@ -68,6 +68,110 @@ const STEPS = [
   { id: 5, name: 'Revisar e Salvar', description: 'Confirme e ative a campanha' }
 ];
 
+// Instagram DM Mockup Component
+const InstagramDMMockup = ({ campaignData }: { campaignData: CampaignData }) => {
+  const formatMessage = (content: string) => {
+    return content
+      .replace(/{first_name}/g, 'João')
+      .replace(/{username}/g, '@joaosilva')
+      .replace(/{post_url}/g, 'instagram.com/p/ABC123');
+  };
+
+  return (
+    <div className="flex justify-center">
+      {/* Phone Frame */}
+      <div className="relative w-80 h-[600px] bg-black rounded-[3rem] p-2 shadow-2xl">
+        {/* Screen */}
+        <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
+          {/* Status Bar */}
+          <div className="bg-white h-12 flex items-center justify-between px-6 text-black text-sm font-medium">
+            <span>9:41</span>
+            <div className="flex items-center space-x-1">
+              <div className="w-4 h-2 border border-black rounded-sm">
+                <div className="w-3 h-1 bg-black rounded-sm m-[1px]"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* DM Header */}
+          <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-bold">M</span>
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Minha Empresa</p>
+              <p className="text-xs text-gray-500">Ativo agora</p>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 p-4 space-y-4 bg-gray-50 min-h-[400px]">
+            {/* User message */}
+            <div className="flex justify-end">
+              <div className="bg-blue-500 text-white px-4 py-2 rounded-2xl rounded-br-lg max-w-xs">
+                <p className="text-sm">interessado</p>
+              </div>
+            </div>
+
+            {/* Bot response */}
+            <div className="flex justify-start">
+              <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-lg max-w-xs shadow-sm">
+                <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                  {formatMessage(campaignData.messageContent)}
+                </p>
+
+                {/* Link preview for link type */}
+                {campaignData.messageType === 'link' && campaignData.linkUrl && (
+                  <div className="mt-3 border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="h-20 bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center">
+                      <LinkIcon className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <div className="p-2">
+                      <p className="text-xs text-gray-600 truncate">{campaignData.linkUrl}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Buttons for button type */}
+                {campaignData.messageType === 'button' && campaignData.buttons.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {campaignData.buttons.map((button, index) => (
+                      <button
+                        key={index}
+                        className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                      >
+                        {button.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Delivered indicator */}
+            <div className="flex justify-start">
+              <p className="text-xs text-gray-400 ml-2">Entregue</p>
+            </div>
+          </div>
+
+          {/* Message Input (inactive) */}
+          <div className="bg-white border-t border-gray-200 p-4">
+            <div className="bg-gray-100 rounded-full px-4 py-2 flex items-center space-x-2">
+              <span className="text-gray-400 text-sm flex-1">Mensagem...</span>
+              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">→</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Home indicator */}
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-white rounded-full opacity-50"></div>
+      </div>
+    </div>
+  );
+};
+
 const NewCampaign = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [campaignData, setCampaignData] = useState<CampaignData>({
