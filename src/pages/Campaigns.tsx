@@ -93,6 +93,9 @@ const Campaigns = () => {
         if (automations.length === 0) {
           createExampleCampaign();
 
+          // Aguardar um momento para garantir IDs únicos
+          await new Promise(resolve => setTimeout(resolve, 1));
+
           // Criar uma segunda campanha com "todos os comentários"
           addMVPAutomation({
             name: 'Campanha - Todos os Comentários',
