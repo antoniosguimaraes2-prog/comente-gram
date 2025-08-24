@@ -237,43 +237,45 @@ const Pricing = () => {
                     ))}
                   </div>
 
-                  {plan.isCustom ? (
-                    <Button
-                      className="w-full h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                      onClick={() => window.open('mailto:vendas@comentedm.com.br?subject=Interesse no Plano Agência', '_blank')}
-                    >
-                      {plan.cta}
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  ) : plan.isFree ? (
-                    <Link to="/auth" onClick={scrollToTop}>
-                      <Button className="w-full h-12 bg-green-600 hover:bg-green-700">
-                        {plan.cta}
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Link
-                      to="/checkout"
-                      onClick={scrollToTop}
-                      state={{
-                        plan: plan.name,
-                        price: isAnnual ? plan.priceAnnual : plan.priceMonthly,
-                        billing: isAnnual ? 'annual' : 'monthly'
-                      }}
-                    >
+                  <div className="pt-4">
+                    {plan.isCustom ? (
                       <Button
-                        className={`w-full h-12 ${
-                          plan.highlight
-                            ? 'bg-purple-600 hover:bg-purple-700'
-                            : 'bg-gray-900 hover:bg-gray-800'
-                        }`}
+                        className="w-full h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                        onClick={() => window.open('mailto:vendas@comentedm.com.br?subject=Interesse no Plano Agência', '_blank')}
                       >
                         {plan.cta}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
-                    </Link>
-                  )}
+                    ) : plan.isFree ? (
+                      <Link to="/auth" onClick={scrollToTop}>
+                        <Button className="w-full h-12 bg-green-600 hover:bg-green-700">
+                          {plan.cta}
+                          <ArrowRight className="w-5 h-5 ml-2" />
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/checkout"
+                        onClick={scrollToTop}
+                        state={{
+                          plan: plan.name,
+                          price: isAnnual ? plan.priceAnnual : plan.priceMonthly,
+                          billing: isAnnual ? 'annual' : 'monthly'
+                        }}
+                      >
+                        <Button
+                          className={`w-full h-12 ${
+                            plan.highlight
+                              ? 'bg-purple-600 hover:bg-purple-700'
+                              : 'bg-gray-900 hover:bg-gray-800'
+                          }`}
+                        >
+                          {plan.cta}
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
