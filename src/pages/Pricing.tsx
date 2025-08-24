@@ -362,15 +362,19 @@ const Pricing = () => {
             <p className="text-xl">
               Escolha seu plano e comece a converter comentários em vendas hoje mesmo
             </p>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="text-lg px-8 h-12"
-              onClick={() => window.open('https://pay.kiwify.com.br/p3DiSE2', '_blank')}
+            <Link
+              to="/checkout"
+              state={{
+                plan: "Professional",
+                price: isAnnual ? 81 : 97,
+                billing: isAnnual ? 'annual' : 'monthly'
+              }}
             >
-              Começar Agora
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+              <Button size="lg" variant="secondary" className="text-lg px-8 h-12">
+                Começar Agora
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
             <p className="text-sm opacity-80">
               Garantia de 7 dias • Suporte completo • Resultados garantidos
             </p>
