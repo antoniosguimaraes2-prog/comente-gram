@@ -105,7 +105,7 @@ const InstagramDMMockup = ({ campaignData }: { campaignData: CampaignData }) => 
           </div>
 
           {/* Messages */}
-          <div className="flex-1 p-4 space-y-4 bg-gray-50 min-h-[400px]">
+          <div className="flex-1 p-4 space-y-4 bg-gray-50 min-h-[400px] overflow-y-auto">
             {/* User message */}
             <div className="flex justify-end">
               <div className="bg-blue-500 text-white px-4 py-2 rounded-2xl rounded-br-lg max-w-xs">
@@ -152,6 +152,32 @@ const InstagramDMMockup = ({ campaignData }: { campaignData: CampaignData }) => 
             <div className="flex justify-start">
               <p className="text-xs text-gray-400 ml-2">Entregue</p>
             </div>
+
+            {/* Button click responses - Only for button type */}
+            {campaignData.messageType === 'button' && campaignData.buttons.length > 0 && (
+              <>
+                {/* Simulate button click */}
+                <div className="flex justify-end">
+                  <div className="bg-blue-500 text-white px-4 py-2 rounded-2xl rounded-br-lg max-w-xs">
+                    <p className="text-sm">Clicou em "{campaignData.buttons[0].name}"</p>
+                  </div>
+                </div>
+
+                {/* Bot response to button click */}
+                <div className="flex justify-start">
+                  <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-lg max-w-xs shadow-sm">
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                      {formatMessage(campaignData.buttons[0].responseMessage)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Delivered indicator for response */}
+                <div className="flex justify-start">
+                  <p className="text-xs text-gray-400 ml-2">Entregue</p>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Message Input (inactive) */}
