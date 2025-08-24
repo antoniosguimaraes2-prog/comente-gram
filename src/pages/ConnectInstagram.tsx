@@ -9,16 +9,19 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/providers/AuthProvider";
-import { 
-  Instagram, 
-  CheckCircle, 
-  AlertCircle, 
-  Loader2, 
+import { checkInstagramConfig, validateInstagramAccount, getConfigInstructions } from "@/lib/instagram-config";
+import {
+  Instagram,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
   ExternalLink,
   Shield,
   Zap,
   ArrowRight,
-  Info
+  Info,
+  Settings,
+  AlertTriangle
 } from "lucide-react";
 
 const ConnectInstagram = () => {
