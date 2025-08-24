@@ -321,7 +321,7 @@ const NewCampaign = () => {
           : `${data.campaignsCreated} automações foram ativadas.`,
       });
       queryClient.invalidateQueries({ queryKey: ["automations"] });
-      navigate("/dashboard");
+      navigate("/campaigns");
     },
     onError: (error: any) => {
       toast({
@@ -978,7 +978,7 @@ const NewCampaign = () => {
                   <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
                     <div className="text-2xl font-bold text-purple-600 mb-1">
                       {campaignData.messageType === 'simple' ? '📝' :
-                       campaignData.messageType === 'link' ? '🔗' : '🔘'}
+                       campaignData.messageType === 'link' ? '��' : '🔘'}
                     </div>
                     <div className="text-sm text-purple-800 font-medium">Tipo</div>
                     <div className="text-xs text-purple-600 mt-1">
