@@ -31,22 +31,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Define public routes that don't require authentication
+  const publicRoutes = ['/auth', '/home', '/pricing', '/privacy', '/terms', '/checkout'];
+
   useEffect(() => {
     // Check MVP mode first
     const mvpMode = isMVPMode();
     setIsInMVPMode(mvpMode);
-    
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
-      
+
       // Redirect logic - MVP mode bypasses auth requirements
       if (mvpMode && location.pathname === "/auth") {
         navigate("/campaigns");
       } else if (session?.user && location.pathname === "/auth") {
         navigate("/campaigns");
-      } else if (!session?.user && !mvpMode && location.pathname !== "/auth") {
+      } else if (!session?.user && !mvpMode && !publicRoutes.includes(location.pathname)) {
         navigate("/auth");
       }
     });
