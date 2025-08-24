@@ -92,7 +92,7 @@ const Campaigns = () => {
           name: automation.name,
           caption: automation.name,
           thumbnail_url: null,
-          active_bool: true,
+          active_bool: automation.active ?? true,
           created_at: automation.createdAt,
           posted_at: automation.createdAt,
           dm_template: automation.dmTemplate,
