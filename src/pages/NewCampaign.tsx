@@ -34,6 +34,12 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/providers/AuthProvider";
 import { addMVPAutomation } from "@/lib/mvp";
 
+interface Button {
+  name: string;
+  url: string;
+  responseMessage: string;
+}
+
 interface CampaignData {
   name: string;
   selectedPosts: InstagramPost[];
@@ -41,6 +47,8 @@ interface CampaignData {
   listenAllComments: boolean;
   messageType: 'simple' | 'link' | 'button';
   messageContent: string;
+  linkUrl: string;
+  buttons: Button[];
 }
 
 interface InstagramPost {
