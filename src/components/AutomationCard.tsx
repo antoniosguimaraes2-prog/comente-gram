@@ -45,6 +45,12 @@ const AutomationCard = ({ automation }: AutomationCardProps) => {
   const displayKeywords = automation.keywords?.join(", ") || "Nenhuma palavra-chave";
   const displayMessage = truncateText(automation.dmTemplate || automation.caption);
 
+  const handleViewAnalytics = () => {
+    const url = isInMVPMode ? `/automations/${automation.id}` : `/posts/${automation.media_id}`;
+    console.log('Navigating to:', url, 'automation ID:', automation.id);
+    navigate(url);
+  };
+
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="p-4">
