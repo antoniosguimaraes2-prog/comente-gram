@@ -8,10 +8,10 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
+            <Link to="/home" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <Instagram className="w-8 h-8 text-purple-400" />
               <span className="text-xl font-bold">ComenteDM</span>
-            </div>
+            </Link>
             <p className="text-gray-400 text-sm">
               Automatize suas vendas no Instagram com DMs inteligentes baseadas em comentários.
             </p>
