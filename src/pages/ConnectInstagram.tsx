@@ -35,7 +35,7 @@ const ConnectInstagram = () => {
   const { data: configStatus, isLoading: isCheckingConfig } = useQuery({
     queryKey: ["instagram-config-status"],
     queryFn: checkInstagramConfig,
-    enabled: !isInMVPMode,
+    enabled: !isInMVPMode && !account, // Only check if not in MVP mode and no account connected
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -542,7 +542,7 @@ const ConnectInstagram = () => {
                 {(() => {
                   const validation = validateInstagramAccount(account);
                   return validation.isValid ? (
-                    <p className="text-green-600">✅ Conta válida e funcionando</p>
+                    <p className="text-green-600">�� Conta válida e funcionando</p>
                   ) : (
                     <ul className="list-disc pl-4 space-y-1 text-orange-600">
                       {validation.issues.map((issue, index) => (
