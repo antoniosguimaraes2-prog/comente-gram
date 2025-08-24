@@ -49,6 +49,11 @@ const App = () => (
                 <PostDetails />
               </ProtectedRoute>
             } />
+            <Route path="/automations/:campaignId" element={
+              <ProtectedRoute>
+                <CampaignDetails />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
