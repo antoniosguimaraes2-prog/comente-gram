@@ -52,27 +52,27 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Conta */}
+          {/* Suporte */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Conta</h3>
+            <h3 className="text-lg font-semibold">Suporte</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/account" className="text-gray-400 hover:text-white transition-colors">
-                  Configurações
+                <Link to="/auth" className="text-gray-400 hover:text-white transition-colors">
+                  Fazer Login
                 </Link>
               </li>
               <li>
-                <Link to="/billing" className="text-gray-400 hover:text-white transition-colors">
-                  Financeiro
+                <Link to="/pricing" className="text-gray-400 hover:text-white transition-colors">
+                  Ver Planos
                 </Link>
               </li>
               <li>
-                <a href="#suporte" className="text-gray-400 hover:text-white transition-colors">
-                  Suporte
+                <a href="mailto:suporte@comentedm.com" className="text-gray-400 hover:text-white transition-colors">
+                  Contato
                 </a>
               </li>
               <li>
-                <a href="#status" className="text-gray-400 hover:text-white transition-colors">
+                <a href="https://status.comentedm.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                   Status do Sistema
                 </a>
               </li>
