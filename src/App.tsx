@@ -31,7 +31,14 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Public Routes */}
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+
+            {/* Protected Routes */}
             <Route path="/" element={
               <ProtectedRoute>
                 <Campaigns />
@@ -65,6 +72,21 @@ const App = () => (
             <Route path="/automations/:campaignId" element={
               <ProtectedRoute>
                 <CampaignDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="/account" element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            } />
+            <Route path="/billing" element={
+              <ProtectedRoute>
+                <Billing />
+              </ProtectedRoute>
+            } />
+            <Route path="/checkout" element={
+              <ProtectedRoute>
+                <Checkout />
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />
