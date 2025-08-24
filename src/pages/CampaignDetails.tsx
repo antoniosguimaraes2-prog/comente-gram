@@ -67,15 +67,9 @@ const CampaignDetails = () => {
     buttons: [] as Button[]
   });
 
-  console.log('CampaignDetails carregado - campaignId:', campaignId);
-  console.log('Modo MVP:', isInMVPMode);
-
   useEffect(() => {
     try {
-      console.log('useEffect executando - buscando campanha...');
-      
       if (!campaignId) {
-        console.log('Nenhum campaignId fornecido');
         setError('ID da campanha não fornecido');
         setLoading(false);
         return;
