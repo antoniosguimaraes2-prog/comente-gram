@@ -11,6 +11,13 @@ import ConnectInstagram from "./pages/ConnectInstagram";
 import NewCampaign from "./pages/NewCampaign";
 import PostDetails from "./pages/PostDetails";
 import CampaignDetails from "./pages/CampaignDetails";
+import Home from "./pages/Home";
+import Account from "./pages/Account";
+import Pricing from "./pages/Pricing";
+import Checkout from "./pages/Checkout";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Billing from "./pages/Billing";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
