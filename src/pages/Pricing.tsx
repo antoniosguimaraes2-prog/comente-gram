@@ -406,6 +406,46 @@ const Pricing = () => {
         </div>
       </section>
 
+      {/* Another Basic Plan CTA */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Pronto para automatizar suas vendas?
+                  </h3>
+                  <p className="text-gray-600">
+                    O plano Basic oferece tudo que você precisa para começar a converter comentários em vendas
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">R$ 22/mês</div>
+                    <div className="text-sm text-gray-500">1.000 DMs mensais</div>
+                  </div>
+                  <Link
+                    to="/checkout"
+                    onClick={scrollToTop}
+                    state={{
+                      plan: "Basic",
+                      price: isAnnual ? 18 : 22,
+                      billing: isAnnual ? 'annual' : 'monthly'
+                    }}
+                  >
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      Escolher Basic Agora
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* FAQ Section */}
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
