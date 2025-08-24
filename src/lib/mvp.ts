@@ -55,6 +55,7 @@ export const addMVPAutomation = (automation: Omit<MVPAutomation, 'id' | 'created
     ...automation,
     id: Date.now().toString(),
     createdAt: new Date().toISOString(),
+    active: automation.active ?? true,
   };
 
   const automations = getMVPAutomations();
