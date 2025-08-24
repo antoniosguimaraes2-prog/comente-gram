@@ -95,7 +95,7 @@ const PostCard = ({ post }: PostCardProps) => {
       </CardContent>
       
       <CardFooter className="p-4 pt-0">
-        <Link to={`/posts/${post.media_id}`} className="w-full">
+        <Link to={`/posts/${post.media_id}`} className="w-full" onClick={scrollToTop}>
           <Button className="w-full">Ver Detalhes</Button>
         </Link>
       </CardFooter>
