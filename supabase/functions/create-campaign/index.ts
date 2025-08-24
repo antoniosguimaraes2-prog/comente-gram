@@ -102,6 +102,7 @@ serve(async (req) => {
         active_bool: true,
         dm_template: dmTemplate,
         listen_all_comments: listenAllComments || false,
+        message_type: messageType || 'simple',
       })
       .select()
       .single()
