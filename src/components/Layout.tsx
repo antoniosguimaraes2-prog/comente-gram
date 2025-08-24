@@ -36,7 +36,7 @@ const Layout = ({ children }: LayoutProps) => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-3">
-                <Link to="/dashboard" className="text-xl font-bold text-blue-600">
+                <Link to="/campaigns" className="text-xl font-bold text-blue-600">
                   ComenteDM
                 </Link>
                 {isInMVPMode && (
