@@ -19,6 +19,7 @@ const AuthPage = () => {
   const [showOAuthInfo, setShowOAuthInfo] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isGoogleConfigured, loading: configLoading, supabaseConfig } = useAuthConfig();
 
   const handleAuth = async (email: string, password: string, isSignUp: boolean) => {
     setLoading(true);
