@@ -4,16 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Zap, AlertCircle, Instagram } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Loader2, Zap, Instagram } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { enableMVPMode } from "@/lib/mvp";
 import GoogleIcon from "@/components/GoogleIcon";
-import { useAuthConfig } from "@/hooks/use-auth-config";
-import { getGoogleConsoleInstructions } from "@/lib/auth-config";
+import Footer from "@/components/Footer";
 
 const AuthPage = () => {
   const [loading, setLoading] = useState(false);
