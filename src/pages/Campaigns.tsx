@@ -287,7 +287,9 @@ const Campaigns = () => {
   };
 
   const handleViewAnalytics = (campaign: Campaign) => {
+    console.log('Navegando para analytics da campanha:', campaign);
     const url = isInMVPMode ? `/automations/${campaign.id}` : `/posts/${campaign.media_id}`;
+    console.log('URL de destino:', url);
     navigate(url);
   };
 
