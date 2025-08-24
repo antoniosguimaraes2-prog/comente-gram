@@ -249,16 +249,21 @@ const AuthPage = () => {
             
             <Button
               onClick={handleGoogleLogin}
-              className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+              className={`w-full border ${
+                isGoogleConfigured
+                  ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                  : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+              }`}
               variant="outline"
-              disabled={loading}
+              disabled={loading || configLoading || !isGoogleConfigured}
+              title={!isGoogleConfigured ? 'Google OAuth não está configurado' : ''}
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <GoogleIcon className="w-4 h-4 mr-2" />
               )}
-              Continuar com Google
+              {isGoogleConfigured ? 'Continuar com Google' : 'Google (Não configurado)'}
             </Button>
           </div>
           
