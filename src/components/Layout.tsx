@@ -25,6 +25,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: BarChart3 },
+    { path: "/campaigns", label: "Campanhas", icon: Target },
     { path: "/new", label: "Nova Campanha", icon: Plus },
     { path: "/connect-instagram", label: "Conectar Instagram", icon: Instagram },
   ];
