@@ -57,7 +57,7 @@ const AuthPage = () => {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/campaigns`,
@@ -68,33 +68,14 @@ const AuthPage = () => {
         }
       });
 
-      if (error) {
-        // Check for specific Google OAuth configuration errors
-        if (error.message.includes('OAuth') || error.message.includes('provider')) {
-          throw new Error('Google OAuth não está configurado. Verifique as configurações no Supabase.');
-        }
-        throw error;
-      }
-
-      // Note: For OAuth providers, the user is redirected and loading state
-      // will be managed by the redirect flow
+      if (error) throw error;
 
     } catch (error: any) {
       console.error('Google login error:', error);
 
-      let errorMessage = "Erro no login com Google.";
-
-      if (error.message.includes('OAuth')) {
-        errorMessage = "Google OAuth não está configurado. Configure no painel do Supabase.";
-      } else if (error.message.includes('redirect')) {
-        errorMessage = "Erro de redirecionamento. Verifique as URLs configuradas.";
-      } else if (error.message.includes('popup')) {
-        errorMessage = "Popup bloqueado. Permita popups para este site.";
-      }
-
       toast({
         title: "Erro no Login com Google",
-        description: errorMessage,
+        description: error.message || "Erro no login com Google.",
         variant: "destructive",
       });
       setLoading(false);
