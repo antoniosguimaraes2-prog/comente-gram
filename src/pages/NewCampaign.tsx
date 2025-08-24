@@ -604,14 +604,19 @@ const NewCampaign = () => {
               <div className="space-y-6">
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Configurar Mensagem de DM</h3>
-                  
+
                   {/* Message Type Selection */}
                   <div className="space-y-3">
                     <Label>Tipo de Mensagem</Label>
                     <div className="grid grid-cols-3 gap-3">
                       <Button
                         variant={campaignData.messageType === 'simple' ? 'default' : 'outline'}
-                        onClick={() => setCampaignData(prev => ({ ...prev, messageType: 'simple' }))}
+                        onClick={() => setCampaignData(prev => ({
+                          ...prev,
+                          messageType: 'simple',
+                          linkUrl: '',
+                          buttons: []
+                        }))}
                         className="flex flex-col items-center p-4 h-auto"
                       >
                         <MessageSquare className="w-6 h-6 mb-2" />
@@ -619,7 +624,11 @@ const NewCampaign = () => {
                       </Button>
                       <Button
                         variant={campaignData.messageType === 'link' ? 'default' : 'outline'}
-                        onClick={() => setCampaignData(prev => ({ ...prev, messageType: 'link' }))}
+                        onClick={() => setCampaignData(prev => ({
+                          ...prev,
+                          messageType: 'link',
+                          buttons: []
+                        }))}
                         className="flex flex-col items-center p-4 h-auto"
                       >
                         <LinkIcon className="w-6 h-6 mb-2" />
@@ -627,7 +636,11 @@ const NewCampaign = () => {
                       </Button>
                       <Button
                         variant={campaignData.messageType === 'button' ? 'default' : 'outline'}
-                        onClick={() => setCampaignData(prev => ({ ...prev, messageType: 'button' }))}
+                        onClick={() => setCampaignData(prev => ({
+                          ...prev,
+                          messageType: 'button',
+                          linkUrl: ''
+                        }))}
                         className="flex flex-col items-center p-4 h-auto"
                       >
                         <MousePointer className="w-6 h-6 mb-2" />
@@ -650,6 +663,115 @@ const NewCampaign = () => {
                       rows={4}
                     />
                   </div>
+
+                  {/* Link Configuration - Only for 'link' type */}
+                  {campaignData.messageType === 'link' && (
+                    <div className="space-y-2 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <Label htmlFor="linkUrl" className="flex items-center gap-2">
+                        <LinkIcon className="w-4 h-4" />
+                        Link da Mensagem
+                      </Label>
+                      <Input
+                        id="linkUrl"
+                        type="url"
+                        value={campaignData.linkUrl}
+                        onChange={(e) => setCampaignData(prev => ({
+                          ...prev,
+                          linkUrl: e.target.value
+                        }))}
+                        placeholder="https://meusite.com/oferta"
+                      />
+                      <p className="text-sm text-blue-600">
+                        Este link será incluído automaticamente na mensagem e será encurtado para analytics.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Button Configuration - Only for 'button' type */}
+                  {campaignData.messageType === 'button' && (
+                    <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex items-center justify-between">
+                        <Label className="flex items-center gap-2">
+                          <MousePointer className="w-4 h-4" />
+                          Configuração dos Botões (máx. 2)
+                        </Label>
+                        <Button
+                          size="sm"
+                          onClick={addButton}
+                          disabled={campaignData.buttons.length >= 2}
+                          variant="outline"
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Adicionar Botão
+                        </Button>
+                      </div>
+
+                      {campaignData.buttons.length === 0 && (
+                        <div className="text-center py-4 text-gray-500">
+                          <MousePointer className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                          <p className="text-sm">Nenhum botão configurado</p>
+                          <Button
+                            size="sm"
+                            onClick={addButton}
+                            variant="outline"
+                            className="mt-2"
+                          >
+                            Adicionar Primeiro Botão
+                          </Button>
+                        </div>
+                      )}
+
+                      {campaignData.buttons.map((button, index) => (
+                        <div key={index} className="space-y-3 p-3 bg-white rounded border">
+                          <div className="flex items-center justify-between">
+                            <Label className="font-medium">Botão {index + 1}</Label>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => removeButton(index)}
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-sm">Nome do Botão</Label>
+                              <Input
+                                value={button.name}
+                                onChange={(e) => updateButton(index, 'name', e.target.value)}
+                                placeholder="Ex: Ver Oferta"
+                                maxLength={20}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-sm">Link do Botão</Label>
+                              <Input
+                                type="url"
+                                value={button.url}
+                                onChange={(e) => updateButton(index, 'url', e.target.value)}
+                                placeholder="https://exemplo.com"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label className="text-sm">Mensagem quando clicado</Label>
+                            <Textarea
+                              value={button.responseMessage}
+                              onChange={(e) => updateButton(index, 'responseMessage', e.target.value)}
+                              placeholder="Obrigado pelo interesse! Aqui está mais informações..."
+                              rows={2}
+                            />
+                          </div>
+                        </div>
+                      ))}
+
+                      <p className="text-sm text-green-600">
+                        Quando o usuário clicar no botão, receberá a mensagem configurada acima.
+                      </p>
+                    </div>
+                  )}
 
                   {/* Variable Buttons */}
                   <div className="space-y-2">
