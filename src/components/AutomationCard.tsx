@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Calendar, MessageCircle, Send, TrendingUp, Zap, Instagram } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 
