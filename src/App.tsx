@@ -20,6 +20,7 @@ import Terms from "./pages/Terms";
 import Billing from "./pages/Billing";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
