@@ -108,6 +108,7 @@ export const createExampleCampaign = (): MVPAutomation => {
     keywords: ['interessado', 'preço', 'info'],
     dmTemplate: 'Oi! Vi que você comentou no meu post. Te mando mais informações por aqui! 😊',
     messageType: 'simple',
-    active: true
+    active: true,
+    listenAllComments: false
   });
 };
