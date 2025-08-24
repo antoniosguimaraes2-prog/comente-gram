@@ -47,8 +47,12 @@ const AutomationCard = ({ automation }: AutomationCardProps) => {
 
   const handleViewAnalytics = () => {
     const url = isInMVPMode ? `/automations/${automation.id}` : `/posts/${automation.media_id}`;
-    console.log('Navigating to:', url, 'automation ID:', automation.id);
-    navigate(url);
+    console.log('Navigating to:', url, 'automation ID:', automation.id, 'isInMVPMode:', isInMVPMode);
+    try {
+      navigate(url);
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
   };
 
   return (
