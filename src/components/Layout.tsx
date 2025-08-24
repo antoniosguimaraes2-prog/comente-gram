@@ -1,10 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useLocation } from "react-router-dom";
-import { LogOut, Instagram, BarChart3, Plus, Zap } from "lucide-react";
+import { LogOut, Instagram, BarChart3, Plus, Zap, Target } from "lucide-react";
 import { disableMVPMode } from "@/lib/mvp";
 
 interface LayoutProps {
