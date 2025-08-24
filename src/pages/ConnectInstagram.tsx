@@ -107,9 +107,15 @@ const ConnectInstagram = () => {
           Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
         },
       });
-      
-      if (error) throw error;
-      
+
+      if (error) {
+        // Check for specific configuration errors
+        if (error.message?.includes('META_APP_ID not configured')) {
+          throw new Error("Credenciais do Meta não configuradas. Configure META_APP_ID e META_APP_SECRET no Supabase.");
+        }
+        throw error;
+      }
+
       if (data?.authUrl) {
         // Redirect to Instagram OAuth
         window.location.href = data.authUrl;
@@ -118,9 +124,17 @@ const ConnectInstagram = () => {
       }
     } catch (error: any) {
       console.error('Connection error:', error);
+
+      let errorMessage = error.message || "Erro ao iniciar conexão com Instagram.";
+
+      // Provide specific help based on error type
+      if (error.message?.includes('META_APP_ID')) {
+        errorMessage += "\n\n💡 Solução: Configure as credenciais do Meta no Supabase Dashboard.";
+      }
+
       toast({
         title: "Erro de Conexão",
-        description: error.message || "Erro ao iniciar conexão com Instagram. Verifique se as credenciais do Meta estão configuradas.",
+        description: errorMessage,
         variant: "destructive",
       });
       setConnecting(false);
@@ -163,7 +177,7 @@ const ConnectInstagram = () => {
                 <Info className="h-4 w-4" />
                 <AlertDescription>
                   No modo MVP, você pode criar e testar campanhas sem conectar uma conta real do Instagram. 
-                  Os dados são salvos localmente no seu navegador.
+                  Os dados s��o salvos localmente no seu navegador.
                 </AlertDescription>
               </Alert>
 
