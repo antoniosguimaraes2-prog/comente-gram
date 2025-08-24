@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Zap, AlertCircle, Instagram } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { enableMVPMode } from "@/lib/mvp";
+import GoogleIcon from "@/components/GoogleIcon";
 
 const AuthPage = () => {
   const [loading, setLoading] = useState(false);
