@@ -13,10 +13,24 @@ export const checkInstagramConfig = async (): Promise<ConfigStatus> => {
   let hasValidCallback = false;
 
   try {
+    // Get current session
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+
+    if (!accessToken) {
+      errors.push('Usuário não está autenticado');
+      return {
+        isConfigured: false,
+        hasCredentials: false,
+        hasValidCallback: false,
+        errors
+      };
+    }
+
     // Test if the Instagram OAuth start function is working
     const { data, error } = await supabase.functions.invoke("instagram-oauth-start", {
       headers: {
-        Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
