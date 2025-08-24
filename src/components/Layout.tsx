@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link, useLocation } from "react-router-dom";
 import { LogOut, Instagram, BarChart3, Plus, Zap, Target } from "lucide-react";
 import { disableMVPMode } from "@/lib/mvp";
+import Footer from "./Footer";
 
 interface LayoutProps {
   children: React.ReactNode;
