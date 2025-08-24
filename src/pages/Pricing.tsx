@@ -260,7 +260,19 @@ const Pricing = () => {
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                   </tr>
                   <tr className="bg-gray-50">
+                    <td className="px-6 py-4 text-sm text-gray-900">Palavras-chave</td>
+                    <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
+                    <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
+                    <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr>
                     <td className="px-6 py-4 text-sm text-gray-900">Analytics avançados</td>
+                    <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
+                    <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
+                    <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td className="px-6 py-4 text-sm text-gray-900">Automação com botões</td>
                     <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
