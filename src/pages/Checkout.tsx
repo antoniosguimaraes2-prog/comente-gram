@@ -79,16 +79,54 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    // Simulate payment processing
-    setTimeout(() => {
+    if (!user) {
       toast({
-        title: "✅ Pagamento processado!",
-        description: "Bem-vindo ao ComenteDM! Sua conta foi ativada com sucesso.",
+        title: "Erro",
+        description: "Você precisa estar logado para fazer uma compra. Redirecionando...",
+        variant: "destructive",
       });
-      navigate("/campaigns");
-    }, 2000);
+      navigate("/auth");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Call our Supabase function to create Kiwify checkout
+      const { data, error: functionError } = await supabase.functions.invoke('kiwify-checkout', {
+        body: {
+          planName: planData.plan,
+          planPrice: planData.price,
+          billingCycle: planData.billing,
+          customerEmail: formData.email,
+          customerName: formData.name,
+          userId: user.id
+        }
+      });
+
+      if (functionError) {
+        throw new Error(functionError.message);
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Erro ao processar checkout');
+      }
+
+      // Redirect to Kiwify checkout
+      window.location.href = data.checkout_url;
+
+    } catch (error) {
+      console.error('Checkout error:', error);
+      setError(error instanceof Error ? error.message : 'Erro inesperado ao processar pagamento');
+      toast({
+        title: "Erro no Checkout",
+        description: "Não foi possível processar o pagamento. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isFormValid = formData.email && formData.name && formData.cardNumber && formData.expiryDate && formData.cvv && formData.nameOnCard;
