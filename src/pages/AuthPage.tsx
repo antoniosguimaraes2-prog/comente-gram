@@ -345,7 +345,16 @@ const AuthPage = () => {
 
             <div className="border-t pt-3 space-y-2">
               <Button
-                onClick={refreshConfig}
+                onClick={async () => {
+                  await refreshConfig();
+                  // Show success toast if Google is now configured
+                  if (isGoogleConfigured) {
+                    toast({
+                      title: "✅ Google OAuth Configurado!",
+                      description: "O login com Google está funcionando corretamente.",
+                    });
+                  }
+                }}
                 disabled={configLoading}
                 size="sm"
                 variant="outline"
