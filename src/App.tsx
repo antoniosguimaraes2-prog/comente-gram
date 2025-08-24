@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import ConnectInstagram from "./pages/ConnectInstagram";
 import NewCampaign from "./pages/NewCampaign";
 import PostDetails from "./pages/PostDetails";
+import CampaignDetails from "./pages/CampaignDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
