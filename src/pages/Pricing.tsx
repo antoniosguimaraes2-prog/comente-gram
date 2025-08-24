@@ -553,7 +553,7 @@ const Pricing = () => {
               onClick={scrollToTop}
               state={{
                 plan: "Pro",
-                price: isAnnual ? 56 : 67,
+                price: isAnnual ? 38 : 45,
                 billing: isAnnual ? 'annual' : 'monthly'
               }}
             >
