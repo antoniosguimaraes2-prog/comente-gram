@@ -1,5 +1,10 @@
-
 // MVP Mode - Local storage helper for testing without backend
+interface Button {
+  name: string;
+  url: string;
+  responseMessage: string;
+}
+
 export interface MVPAutomation {
   id: string;
   name: string;
@@ -7,6 +12,9 @@ export interface MVPAutomation {
   postUrl: string;
   keywords: string[];
   dmTemplate: string;
+  messageType?: 'simple' | 'link' | 'button';
+  linkUrl?: string;
+  buttons?: Button[];
   createdAt: string;
 }
 
