@@ -199,17 +199,25 @@ const Pricing = () => {
                     ))}
                   </div>
 
-                  <Button
-                    className={`w-full h-12 ${
-                      plan.highlight
-                        ? 'bg-purple-600 hover:bg-purple-700'
-                        : 'bg-gray-900 hover:bg-gray-800'
-                    }`}
-                    onClick={() => window.open(plan.kiwifyUrl, '_blank')}
+                  <Link
+                    to="/checkout"
+                    state={{
+                      plan: plan.name,
+                      price: isAnnual ? plan.priceAnnual : plan.priceMonthly,
+                      billing: isAnnual ? 'annual' : 'monthly'
+                    }}
                   >
-                    {plan.cta}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
+                    <Button
+                      className={`w-full h-12 ${
+                        plan.highlight
+                          ? 'bg-purple-600 hover:bg-purple-700'
+                          : 'bg-gray-900 hover:bg-gray-800'
+                      }`}
+                    >
+                      {plan.cta}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
