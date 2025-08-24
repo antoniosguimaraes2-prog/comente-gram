@@ -422,8 +422,8 @@ const Checkout = () => {
                 <span className="text-sm font-medium text-gray-800">Pagamento Seguro</span>
               </div>
               <p className="text-xs text-gray-600">
-                Utilizamos criptografia SSL de 256 bits e não armazenamos dados do seu cartão. 
-                Processamento seguro via Stripe.
+                Utilizamos criptografia SSL de 256 bits e não armazenamos dados do seu cartão.
+                Processamento seguro via Kiwify com certificação PCI DSS.
               </p>
             </div>
           </div>
