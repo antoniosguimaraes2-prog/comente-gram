@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Calendar, 
@@ -20,32 +21,59 @@ import {
   Users, 
   Eye,
   Clock,
-  Share,
   Heart,
   Zap,
   ArrowLeft,
   Play,
   Pause,
   Download,
-  RefreshCw,
   Edit,
   Trash2,
   Plus,
   X,
   Save,
-  Cancel,
   Image,
   Video,
   LinkIcon,
   MousePointer,
   Hash,
-  ExternalLink
+  ExternalLink,
+  Copy,
+  Check,
+  AlertTriangle,
+  Activity,
+  Target,
+  Share2,
+  BarChart3
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getMVPAutomations, type MVPAutomation } from "@/lib/mvp";
+import { getMVPAutomations, updateMVPAutomation, type MVPAutomation } from "@/lib/mvp";
+import { useAuth } from "@/providers/AuthProvider";
 
-// Simulated user interactions data
-const generateUserInteractions = (campaignId: string) => {
+interface UserInteraction {
+  id: string;
+  username: string;
+  fullName: string;
+  followers: number;
+  profileUrl: string;
+  avatarUrl?: string;
+  keyword: string;
+  comment: string;
+  commentTime: string;
+  messageStatus: 'sent' | 'delivered' | 'read' | 'error' | 'pending';
+  dmSentTime?: string;
+  clicked: boolean;
+  converted: boolean;
+  lastActivity: string;
+}
+
+interface Button {
+  name: string;
+  url: string;
+  responseMessage: string;
+}
+
+const generateUserInteractions = (campaignId: string): UserInteraction[] => {
   const users = [
     { username: 'joao_silva', fullName: 'João Silva', followers: 2534 },
     { username: 'maria_santos', fullName: 'Maria Santos', followers: 892 },
@@ -56,45 +84,76 @@ const generateUserInteractions = (campaignId: string) => {
     { username: 'bruno_alves', fullName: 'Bruno Alves', followers: 1890 },
     { username: 'camila_rocha', fullName: 'Camila Rocha', followers: 445 },
     { username: 'rafael_mendes', fullName: 'Rafael Mendes', followers: 2187 },
-    { username: 'julia_castro', fullName: 'Júlia Castro', followers: 756 }
+    { username: 'julia_castro', fullName: 'Júlia Castro', followers: 756 },
+    { username: 'fernando_silva', fullName: 'Fernando Silva', followers: 1234 },
+    { username: 'patricia_lima', fullName: 'Patrícia Lima', followers: 987 },
+    { username: 'rodrigo_santos', fullName: 'Rodrigo Santos', followers: 2345 },
+    { username: 'amanda_costa', fullName: 'Amanda Costa', followers: 1567 },
+    { username: 'gabriel_oliveira', fullName: 'Gabriel Oliveira', followers: 876 }
   ];
 
-  const keywords = ['interessado', 'preço', 'info', 'comprar', 'dúvida'];
-  const statuses = ['sent', 'delivered', 'read', 'error'];
+  const keywords = ['interessado', 'preço', 'info', 'comprar', 'dúvida', 'quero', 'valor', 'disponível'];
+  const statuses: UserInteraction['messageStatus'][] = ['sent', 'delivered', 'read', 'error', 'pending'];
+  const comments = [
+    'Estou interessado neste produto!',
+    'Qual o preço?',
+    'Me manda mais informações',
+    'Quero comprar',
+    'Tenho uma dúvida',
+    'Está disponível?',
+    'Como faço para adquirir?',
+    'Aceita cartão?',
+    'Tem desconto?',
+    'Entrega para todo Brasil?'
+  ];
 
-  return Array.from({ length: 15 }, (_, i) => {
+  return Array.from({ length: 20 }, (_, i) => {
     const user = users[Math.floor(Math.random() * users.length)];
+    const commentTime = new Date(Date.now() - Math.random() * 86400000 * 7);
+    const dmTime = new Date(commentTime.getTime() + Math.random() * 3600000);
+    
     return {
-      id: `interaction_${i}`,
+      id: `interaction_${campaignId}_${i}`,
       username: user.username,
       fullName: user.fullName,
       followers: user.followers,
       profileUrl: `https://instagram.com/${user.username}`,
+      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`,
       keyword: keywords[Math.floor(Math.random() * keywords.length)],
-      comment: `Estou ${keywords[Math.floor(Math.random() * keywords.length)]} neste produto!`,
-      commentTime: new Date(Date.now() - Math.random() * 86400000 * 7).toISOString(),
+      comment: comments[Math.floor(Math.random() * comments.length)],
+      commentTime: commentTime.toISOString(),
       messageStatus: statuses[Math.floor(Math.random() * statuses.length)],
-      dmSentTime: new Date(Date.now() - Math.random() * 86400000 * 7).toISOString(),
-      clicked: Math.random() > 0.7,
-      converted: Math.random() > 0.85
+      dmSentTime: dmTime.toISOString(),
+      clicked: Math.random() > 0.6,
+      converted: Math.random() > 0.8,
+      lastActivity: new Date(Date.now() - Math.random() * 86400000 * 2).toISOString()
     };
   }).sort((a, b) => new Date(b.commentTime).getTime() - new Date(a.commentTime).getTime());
 };
 
 const CampaignDetails = () => {
   const { campaignId } = useParams<{ campaignId: string }>();
-  const [campaign, setCampaign] = useState<MVPAutomation | null>(null);
-  const [userInteractions, setUserInteractions] = useState<any[]>([]);
-  const [isActive, setIsActive] = useState(true);
-  const [editingName, setEditingName] = useState(false);
-  const [editingMessage, setEditingMessage] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [newKeyword, setNewKeyword] = useState('');
-  const [editedMessage, setEditedMessage] = useState('');
-  const [editedMessageType, setEditedMessageType] = useState<'simple' | 'link' | 'button'>('simple');
-  const [editedLinkUrl, setEditedLinkUrl] = useState('');
-  const [editedButtons, setEditedButtons] = useState<any[]>([]);
+  const { isInMVPMode } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const [campaign, setCampaign] = useState<MVPAutomation | null>(null);
+  const [userInteractions, setUserInteractions] = useState<UserInteraction[]>([]);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState({
+    name: '',
+    keywords: [] as string[],
+    newKeyword: '',
+    messageType: 'simple' as 'simple' | 'link' | 'button',
+    messageContent: '',
+    linkUrl: '',
+    buttons: [] as Button[]
+  });
+  
+  const [copied, setCopied] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'sent' | 'delivered' | 'read' | 'error'>('all');
+  const [searchUser, setSearchUser] = useState('');
 
   useEffect(() => {
     if (!campaignId) return;
@@ -104,142 +163,208 @@ const CampaignDetails = () => {
     
     if (foundCampaign) {
       setCampaign(foundCampaign);
-      setNewName(foundCampaign.name);
-      setEditedMessage(foundCampaign.dmTemplate);
-      setEditedMessageType(foundCampaign.messageType || 'simple');
-      setEditedLinkUrl(foundCampaign.linkUrl || '');
-      setEditedButtons(foundCampaign.buttons || []);
+      setEditValues({
+        name: foundCampaign.name,
+        keywords: [...foundCampaign.keywords],
+        newKeyword: '',
+        messageType: foundCampaign.messageType || 'simple',
+        messageContent: foundCampaign.dmTemplate,
+        linkUrl: foundCampaign.linkUrl || '',
+        buttons: foundCampaign.buttons ? [...foundCampaign.buttons] : []
+      });
       setUserInteractions(generateUserInteractions(campaignId));
     }
   }, [campaignId]);
 
-  const handleSaveName = () => {
-    if (newName.trim()) {
-      // In a real app, this would update the campaign in the backend
-      if (campaign) {
-        setCampaign({ ...campaign, name: newName.trim() });
-        setEditingName(false);
-        toast({
-          title: "Nome atualizado",
-          description: "O nome da campanha foi alterado com sucesso.",
-        });
+  // Update campaign mutation
+  const updateCampaignMutation = useMutation({
+    mutationFn: async (updates: Partial<MVPAutomation>) => {
+      if (!campaign) throw new Error('Campanha não encontrada');
+      
+      if (isInMVPMode) {
+        const success = updateMVPAutomation(campaign.id, updates);
+        if (!success) throw new Error('Erro ao atualizar campanha MVP');
+        return updates;
       }
-    }
-  };
 
-  const handleSaveMessage = () => {
-    if (editedMessage.trim()) {
-      // In a real app, this would update the campaign in the backend
+      // TODO: Implement real API call for production mode
+      throw new Error('Modo produção não implementado');
+    },
+    onSuccess: (updates) => {
       if (campaign) {
-        setCampaign({ 
-          ...campaign, 
-          dmTemplate: editedMessage.trim(),
-          messageType: editedMessageType,
-          linkUrl: editedLinkUrl,
-          buttons: editedButtons
-        });
-        setEditingMessage(false);
-        toast({
-          title: "Mensagem atualizada",
-          description: "A mensagem da campanha foi alterada com sucesso.",
-        });
+        const updatedCampaign = { ...campaign, ...updates };
+        setCampaign(updatedCampaign);
       }
+      queryClient.invalidateQueries({ queryKey: ["campaigns"] });
+      queryClient.invalidateQueries({ queryKey: ["automations"] });
+      setEditingField(null);
+      toast({
+        title: "✅ Atualizado com sucesso",
+        description: "As alterações foram salvas.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao atualizar campanha.",
+        variant: "destructive",
+      });
     }
+  });
+
+  const handleSaveField = (field: string) => {
+    if (!campaign) return;
+
+    let updates: Partial<MVPAutomation> = {};
+
+    switch (field) {
+      case 'name':
+        if (editValues.name.trim()) {
+          updates.name = editValues.name.trim();
+        }
+        break;
+      case 'keywords':
+        updates.keywords = editValues.keywords;
+        break;
+      case 'message':
+        updates.dmTemplate = editValues.messageContent;
+        updates.messageType = editValues.messageType;
+        updates.linkUrl = editValues.linkUrl;
+        updates.buttons = editValues.buttons;
+        break;
+      case 'status':
+        updates.active = !campaign.active;
+        break;
+    }
+
+    updateCampaignMutation.mutate(updates);
   };
 
   const handleAddKeyword = () => {
-    if (newKeyword.trim() && campaign) {
-      const keyword = newKeyword.trim().toLowerCase();
-      if (!campaign.keywords.includes(keyword)) {
-        setCampaign({
-          ...campaign,
-          keywords: [...campaign.keywords, keyword]
-        });
-        setNewKeyword('');
-        toast({
-          title: "Palavra-chave adicionada",
-          description: `A palavra-chave "${keyword}" foi adicionada.`,
-        });
-      }
+    const keyword = editValues.newKeyword.trim().toLowerCase();
+    if (keyword && !editValues.keywords.includes(keyword)) {
+      setEditValues(prev => ({
+        ...prev,
+        keywords: [...prev.keywords, keyword],
+        newKeyword: ''
+      }));
     }
   };
 
   const handleRemoveKeyword = (keyword: string) => {
-    if (campaign) {
-      setCampaign({
-        ...campaign,
-        keywords: campaign.keywords.filter(k => k !== keyword)
-      });
+    setEditValues(prev => ({
+      ...prev,
+      keywords: prev.keywords.filter(k => k !== keyword)
+    }));
+  };
+
+  const handleAddButton = () => {
+    if (editValues.buttons.length < 2) {
+      setEditValues(prev => ({
+        ...prev,
+        buttons: [...prev.buttons, { name: '', url: '', responseMessage: '' }]
+      }));
+    }
+  };
+
+  const handleUpdateButton = (index: number, field: keyof Button, value: string) => {
+    setEditValues(prev => ({
+      ...prev,
+      buttons: prev.buttons.map((button, i) => 
+        i === index ? { ...button, [field]: value } : button
+      )
+    }));
+  };
+
+  const handleRemoveButton = (index: number) => {
+    setEditValues(prev => ({
+      ...prev,
+      buttons: prev.buttons.filter((_, i) => i !== index)
+    }));
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
       toast({
-        title: "Palavra-chave removida",
-        description: `A palavra-chave "${keyword}" foi removida.`,
+        title: "Copiado!",
+        description: "Link copiado para a área de transferência.",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível copiar o link.",
+        variant: "destructive",
       });
     }
-  };
-
-  const handleToggleStatus = () => {
-    setIsActive(!isActive);
-    toast({
-      title: isActive ? "Campanha pausada" : "Campanha ativada",
-      description: isActive 
-        ? "A campanha foi pausada e não enviará mais DMs."
-        : "A campanha foi ativada e voltará a enviar DMs.",
-    });
-  };
-
-  const addButton = () => {
-    if (editedButtons.length < 2) {
-      setEditedButtons([...editedButtons, { name: '', url: '', responseMessage: '' }]);
-    }
-  };
-
-  const updateButton = (index: number, field: string, value: string) => {
-    const newButtons = [...editedButtons];
-    newButtons[index] = { ...newButtons[index], [field]: value };
-    setEditedButtons(newButtons);
-  };
-
-  const removeButton = (index: number) => {
-    setEditedButtons(editedButtons.filter((_, i) => i !== index));
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString("pt-BR");
-  };
-
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("pt-BR", {
+    return new Date(dateString).toLocaleDateString("pt-BR", {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'sent':
-        return <Badge variant="secondary">Enviada</Badge>;
-      case 'delivered':
-        return <Badge variant="default">Entregue</Badge>;
-      case 'read':
-        return <Badge className="bg-green-500">Lida</Badge>;
-      case 'error':
-        return <Badge variant="destructive">Erro</Badge>;
-      default:
-        return <Badge variant="secondary">Pendente</Badge>;
-    }
+  const formatRelativeTime = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Agora mesmo';
+    if (diffInMinutes < 60) return `${diffInMinutes}m atrás`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h atrás`;
+    return `${Math.floor(diffInMinutes / 1440)}d atrás`;
   };
 
-  if (!campaign) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  const getStatusBadge = (status: UserInteraction['messageStatus']) => {
+    const variants = {
+      sent: { variant: "secondary" as const, text: "Enviada", icon: Send },
+      delivered: { variant: "default" as const, text: "Entregue", icon: Check },
+      read: { variant: "default" as const, text: "Lida", className: "bg-green-500", icon: Eye },
+      error: { variant: "destructive" as const, text: "Erro", icon: AlertTriangle },
+      pending: { variant: "secondary" as const, text: "Pendente", icon: Clock }
+    };
+
+    const config = variants[status];
+    const Icon = config.icon;
+
+    return (
+      <Badge variant={config.variant} className={config.className}>
+        <Icon className="w-3 h-3 mr-1" />
+        {config.text}
+      </Badge>
+    );
+  };
+
+  // Filter interactions
+  const filteredInteractions = userInteractions.filter(interaction => {
+    const matchesStatus = filterStatus === 'all' || interaction.messageStatus === filterStatus;
+    const matchesSearch = !searchUser || 
+      interaction.username.toLowerCase().includes(searchUser.toLowerCase()) ||
+      interaction.fullName.toLowerCase().includes(searchUser.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   // Calculate metrics
   const totalInteractions = userInteractions.length;
-  const totalSent = userInteractions.filter(u => u.messageStatus !== 'error').length;
+  const sentMessages = userInteractions.filter(u => u.messageStatus !== 'error' && u.messageStatus !== 'pending').length;
   const totalClicks = userInteractions.filter(u => u.clicked).length;
   const totalConversions = userInteractions.filter(u => u.converted).length;
-  const clickRate = totalSent > 0 ? ((totalClicks / totalSent) * 100).toFixed(1) : "0.0";
-  const conversionRate = totalSent > 0 ? ((totalConversions / totalSent) * 100).toFixed(1) : "0.0";
+  const readMessages = userInteractions.filter(u => u.messageStatus === 'read').length;
+  
+  const clickRate = sentMessages > 0 ? ((totalClicks / sentMessages) * 100).toFixed(1) : "0.0";
+  const conversionRate = sentMessages > 0 ? ((totalConversions / sentMessages) * 100).toFixed(1) : "0.0";
+  const readRate = sentMessages > 0 ? ((readMessages / sentMessages) * 100).toFixed(1) : "0.0";
+
+  if (!campaign) {
+    return <Navigate to="/campaigns" replace />;
+  }
 
   return (
     <Layout>
@@ -247,48 +372,57 @@ const CampaignDetails = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/dashboard">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Voltar
-              </Button>
-            </Link>
+            <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar
+            </Button>
             <div>
-              <div className="flex items-center space-x-3">
-                {editingName ? (
+              <div className="flex items-center space-x-3 mb-2">
+                {editingField === 'name' ? (
                   <div className="flex items-center space-x-2">
                     <Input
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      className="text-2xl font-bold h-10"
-                      onKeyPress={(e) => e.key === 'Enter' && handleSaveName()}
+                      value={editValues.name}
+                      onChange={(e) => setEditValues(prev => ({ ...prev, name: e.target.value }))}
+                      className="text-2xl font-bold h-10 w-80"
+                      onKeyPress={(e) => e.key === 'Enter' && handleSaveField('name')}
                     />
-                    <Button size="sm" onClick={handleSaveName}>
+                    <Button size="sm" onClick={() => handleSaveField('name')}>
                       <Save className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => setEditingName(false)}>
+                    <Button size="sm" variant="outline" onClick={() => setEditingField(null)}>
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
                     <h1 className="text-2xl font-bold">{campaign.name}</h1>
-                    <Button size="sm" variant="outline" onClick={() => setEditingName(true)}>
+                    <Button size="sm" variant="outline" onClick={() => setEditingField('name')}>
                       <Edit className="w-4 h-4" />
                     </Button>
                   </div>
                 )}
+                
                 <Badge variant="secondary">
                   <Zap className="w-3 h-3 mr-1" />
-                  Modo MVP
+                  {isInMVPMode ? 'Modo MVP' : 'Produção'}
                 </Badge>
-                <Badge variant={isActive ? "default" : "secondary"}>
-                  {isActive ? "Ativa" : "Pausada"}
+                
+                <Badge variant={campaign.active ? "default" : "secondary"}>
+                  <Activity className="w-3 h-3 mr-1" />
+                  {campaign.active ? "Ativa" : "Pausada"}
                 </Badge>
               </div>
-              <p className="text-gray-600 mt-1">
-                Campanha criada em {formatDate(campaign.createdAt)}
-              </p>
+              
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center space-x-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>Criada em {formatDate(campaign.createdAt)}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Target className="w-4 h-4" />
+                  <span>{campaign.accountName}</span>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -298,10 +432,11 @@ const CampaignDetails = () => {
               Exportar
             </Button>
             <Button
-              onClick={handleToggleStatus}
-              variant={isActive ? "destructive" : "default"}
+              onClick={() => handleSaveField('status')}
+              variant={campaign.active ? "destructive" : "default"}
+              disabled={updateCampaignMutation.isPending}
             >
-              {isActive ? (
+              {campaign.active ? (
                 <>
                   <Pause className="w-4 h-4 mr-2" />
                   Pausar
@@ -317,90 +452,118 @@ const CampaignDetails = () => {
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Interações</p>
+                  <p className="text-xs text-gray-600">Interações</p>
                   <p className="text-2xl font-bold">{totalInteractions}</p>
                 </div>
-                <MessageCircle className="w-8 h-8 text-blue-500" />
+                <MessageCircle className="w-6 h-6 text-blue-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">DMs Enviadas</p>
-                  <p className="text-2xl font-bold">{totalSent}</p>
+                  <p className="text-xs text-gray-600">DMs Enviadas</p>
+                  <p className="text-2xl font-bold">{sentMessages}</p>
                 </div>
-                <Send className="w-8 h-8 text-green-500" />
+                <Send className="w-6 h-6 text-green-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Cliques</p>
+                  <p className="text-xs text-gray-600">Taxa Leitura</p>
+                  <p className="text-2xl font-bold">{readRate}%</p>
+                </div>
+                <Eye className="w-6 h-6 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-600">Cliques</p>
                   <p className="text-2xl font-bold">{totalClicks}</p>
                 </div>
-                <Eye className="w-8 h-8 text-purple-500" />
+                <TrendingUp className="w-6 h-6 text-orange-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Taxa de Clique</p>
+                  <p className="text-xs text-gray-600">Taxa Clique</p>
                   <p className="text-2xl font-bold">{clickRate}%</p>
                 </div>
-                <TrendingUp className="w-8 h-8 text-orange-500" />
+                <BarChart3 className="w-6 h-6 text-indigo-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Conversões</p>
+                  <p className="text-xs text-gray-600">Conversões</p>
                   <p className="text-2xl font-bold">{conversionRate}%</p>
                 </div>
-                <Users className="w-8 h-8 text-red-500" />
+                <Users className="w-6 h-6 text-red-500" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Posts Being Monitored */}
+        {/* Posts Section */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              Publicações Monitoradas
-              <Badge variant="secondary">{campaign.selectedPosts?.length || 1} publicação(ões)</Badge>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Image className="w-5 h-5" />
+                <span>Publicações Monitoradas</span>
+              </CardTitle>
+              <Badge variant="secondary">1 publicação</Badge>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                <div className="w-16 h-16 bg-gradient-to-r from-pink-400 to-purple-400 rounded flex items-center justify-center">
-                  <Image className="w-8 h-8 text-white" />
+            <div className="flex items-center space-x-4 p-4 border rounded-lg bg-gray-50">
+              <div className="w-16 h-16 bg-gradient-to-r from-pink-400 to-purple-400 rounded-lg flex items-center justify-center">
+                <Image className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">Post Principal</p>
+                <p className="text-sm text-gray-600 break-all mb-2">{campaign.postUrl}</p>
+                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                  <span className="flex items-center space-x-1">
+                    <MessageCircle className="w-3 h-3" />
+                    <span>{totalInteractions} interações</span>
+                  </span>
+                  <span className="flex items-center space-x-1">
+                    <Send className="w-3 h-3" />
+                    <span>{sentMessages} DMs enviadas</span>
+                  </span>
+                  <span className="flex items-center space-x-1">
+                    <Activity className="w-3 h-3" />
+                    <span>{campaign.active ? 'Ativa' : 'Pausada'}</span>
+                  </span>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium">Post Principal</p>
-                  <p className="text-sm text-gray-500 break-all">{campaign.postUrl}</p>
-                  <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                    <span>📊 {totalInteractions} interações</span>
-                    <span>💬 {totalSent} DMs enviadas</span>
-                  </div>
-                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button size="sm" variant="outline" onClick={() => copyToClipboard(campaign.postUrl)}>
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </Button>
                 <Button size="sm" variant="outline" asChild>
                   <a href={campaign.postUrl} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="w-4 h-4" />
@@ -411,185 +574,382 @@ const CampaignDetails = () => {
           </CardContent>
         </Card>
 
-        {/* Keywords Management */}
+        {/* Keywords Section */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              Palavras-chave Monitoradas
-              <Badge variant="secondary">{campaign.keywords.length} palavra(s)</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex space-x-2">
-                <Input
-                  placeholder="Nova palavra-chave..."
-                  value={newKeyword}
-                  onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleAddKeyword()}
-                />
-                <Button onClick={handleAddKeyword} disabled={!newKeyword.trim()}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar
-                </Button>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {campaign.keywords.map(keyword => (
-                  <div key={keyword} className="flex items-center bg-gray-100 rounded-full px-3 py-1">
-                    <Hash className="w-3 h-3 mr-1 text-gray-500" />
-                    <span className="text-sm">{keyword}</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-auto p-0 ml-2"
-                      onClick={() => handleRemoveKeyword(keyword)}
-                    >
-                      <X className="w-3 h-3 text-red-500" />
-                    </Button>
-                  </div>
-                ))}
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Hash className="w-5 h-5" />
+                <span>Palavras-chave</span>
+              </CardTitle>
+              <div className="flex items-center space-x-2">
+                <Badge variant="secondary">{editValues.keywords.length} palavra(s)</Badge>
+                {editingField !== 'keywords' && (
+                  <Button size="sm" variant="outline" onClick={() => setEditingField('keywords')}>
+                    <Edit className="w-4 h-4 mr-1" />
+                    Editar
+                  </Button>
+                )}
               </div>
             </div>
+          </CardHeader>
+          <CardContent>
+            {editingField === 'keywords' ? (
+              <div className="space-y-4">
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="Nova palavra-chave..."
+                    value={editValues.newKeyword}
+                    onChange={(e) => setEditValues(prev => ({ ...prev, newKeyword: e.target.value }))}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddKeyword()}
+                  />
+                  <Button onClick={handleAddKeyword} disabled={!editValues.newKeyword.trim()}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  {editValues.keywords.map(keyword => (
+                    <div key={keyword} className="flex items-center bg-blue-100 text-blue-800 rounded-full px-3 py-1">
+                      <Hash className="w-3 h-3 mr-1" />
+                      <span className="text-sm">{keyword}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-auto p-0 ml-2 text-red-500 hover:text-red-700"
+                        onClick={() => handleRemoveKeyword(keyword)}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex space-x-2">
+                  <Button onClick={() => handleSaveField('keywords')}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Salvar
+                  </Button>
+                  <Button variant="outline" onClick={() => setEditingField(null)}>
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {campaign.keywords.map(keyword => (
+                  <Badge key={keyword} variant="secondary" className="flex items-center">
+                    <Hash className="w-3 h-3 mr-1" />
+                    {keyword}
+                  </Badge>
+                ))}
+                {campaign.keywords.length === 0 && (
+                  <p className="text-gray-500 text-sm">Nenhuma palavra-chave configurada</p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Message Configuration */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              Configuração da Mensagem
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={() => setEditingMessage(true)}
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Editar
-              </Button>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <MessageCircle className="w-5 h-5" />
+                <span>Configuração da Mensagem</span>
+              </CardTitle>
+              {editingField !== 'message' && (
+                <Button size="sm" variant="outline" onClick={() => setEditingField('message')}>
+                  <Edit className="w-4 h-4 mr-1" />
+                  Editar
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Tipo de Mensagem</Label>
-                <div className="flex items-center space-x-2 mt-1">
-                  {campaign.messageType === 'simple' && <MessageCircle className="w-4 h-4 text-blue-500" />}
-                  {campaign.messageType === 'link' && <LinkIcon className="w-4 h-4 text-blue-500" />}
-                  {campaign.messageType === 'button' && <MousePointer className="w-4 h-4 text-blue-500" />}
-                  <span className="text-sm capitalize">
+            {editingField === 'message' ? (
+              <div className="space-y-6">
+                {/* Message Type */}
+                <div className="space-y-2">
+                  <Label>Tipo de Mensagem</Label>
+                  <Select 
+                    value={editValues.messageType} 
+                    onValueChange={(value: any) => setEditValues(prev => ({ ...prev, messageType: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="simple">
+                        <div className="flex items-center space-x-2">
+                          <MessageCircle className="w-4 h-4" />
+                          <span>Mensagem Simples</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="link">
+                        <div className="flex items-center space-x-2">
+                          <LinkIcon className="w-4 h-4" />
+                          <span>Mensagem com Link</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="button">
+                        <div className="flex items-center space-x-2">
+                          <MousePointer className="w-4 h-4" />
+                          <span>Mensagem com Botão</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Message Content */}
+                <div className="space-y-2">
+                  <Label>Conteúdo da Mensagem</Label>
+                  <Textarea
+                    value={editValues.messageContent}
+                    onChange={(e) => setEditValues(prev => ({ ...prev, messageContent: e.target.value }))}
+                    rows={4}
+                    placeholder="Oi {first_name}! Vi seu interesse no meu post..."
+                  />
+                </div>
+
+                {/* Link Configuration */}
+                {editValues.messageType === 'link' && (
+                  <div className="space-y-2">
+                    <Label>URL do Link</Label>
+                    <Input
+                      type="url"
+                      value={editValues.linkUrl}
+                      onChange={(e) => setEditValues(prev => ({ ...prev, linkUrl: e.target.value }))}
+                      placeholder="https://meusite.com/oferta"
+                    />
+                  </div>
+                )}
+
+                {/* Button Configuration */}
+                {editValues.messageType === 'button' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label>Botões (máx. 2)</Label>
+                      <Button 
+                        size="sm" 
+                        onClick={handleAddButton} 
+                        disabled={editValues.buttons.length >= 2}
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Adicionar
+                      </Button>
+                    </div>
+                    
+                    {editValues.buttons.map((button, index) => (
+                      <div key={index} className="p-4 border rounded-lg space-y-3 bg-gray-50">
+                        <div className="flex items-center justify-between">
+                          <Label>Botão {index + 1}</Label>
+                          <Button size="sm" variant="destructive" onClick={() => handleRemoveButton(index)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label className="text-sm">Nome</Label>
+                            <Input
+                              value={button.name}
+                              onChange={(e) => handleUpdateButton(index, 'name', e.target.value)}
+                              placeholder="Ex: Ver Oferta"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-sm">URL</Label>
+                            <Input
+                              type="url"
+                              value={button.url}
+                              onChange={(e) => handleUpdateButton(index, 'url', e.target.value)}
+                              placeholder="https://exemplo.com"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label className="text-sm">Mensagem de Resposta</Label>
+                          <Textarea
+                            value={button.responseMessage}
+                            onChange={(e) => handleUpdateButton(index, 'responseMessage', e.target.value)}
+                            placeholder="Obrigado pelo interesse!"
+                            rows={2}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex space-x-2">
+                  <Button onClick={() => handleSaveField('message')} disabled={updateCampaignMutation.isPending}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Salvar Mensagem
+                  </Button>
+                  <Button variant="outline" onClick={() => setEditingField(null)}>
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  {campaign.messageType === 'simple' && <MessageCircle className="w-5 h-5 text-blue-500" />}
+                  {campaign.messageType === 'link' && <LinkIcon className="w-5 h-5 text-blue-500" />}
+                  {campaign.messageType === 'button' && <MousePointer className="w-5 h-5 text-blue-500" />}
+                  <span className="font-medium">
                     {campaign.messageType === 'simple' && 'Mensagem Simples'}
                     {campaign.messageType === 'link' && 'Mensagem com Link'}
                     {campaign.messageType === 'button' && 'Mensagem com Botão'}
                   </span>
                 </div>
-              </div>
 
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Conteúdo</Label>
-                <div className="p-3 bg-gray-50 rounded text-sm mt-1">
-                  {campaign.dmTemplate}
+                <div className="p-4 bg-gray-50 rounded-lg border">
+                  <p className="text-sm whitespace-pre-wrap">{campaign.dmTemplate}</p>
                 </div>
-              </div>
 
-              {campaign.messageType === 'link' && campaign.linkUrl && (
-                <div>
-                  <Label className="text-sm font-medium text-gray-500">Link</Label>
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm mt-1">
-                    <a href={campaign.linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 break-all">
-                      {campaign.linkUrl}
-                    </a>
+                {campaign.messageType === 'link' && campaign.linkUrl && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                    <p className="text-sm text-blue-600 break-all">{campaign.linkUrl}</p>
                   </div>
-                </div>
-              )}
+                )}
 
-              {campaign.messageType === 'button' && campaign.buttons && campaign.buttons.length > 0 && (
-                <div>
-                  <Label className="text-sm font-medium text-gray-500">Botões ({campaign.buttons.length})</Label>
-                  <div className="space-y-2 mt-1">
+                {campaign.messageType === 'button' && campaign.buttons && campaign.buttons.length > 0 && (
+                  <div className="space-y-2">
                     {campaign.buttons.map((button: any, index: number) => (
                       <div key={index} className="p-3 bg-green-50 border border-green-200 rounded">
                         <div className="text-sm space-y-1">
-                          <p><span className="font-medium">Nome:</span> {button.name}</p>
-                          <p><span className="font-medium">Link:</span> <a href={button.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 break-all">{button.url}</a></p>
-                          <p><span className="font-medium">Resposta:</span> {button.responseMessage}</p>
+                          <p><span className="font-medium">📱 {button.name}</span></p>
+                          <p className="text-gray-600 break-all">🔗 {button.url}</p>
+                          <p className="text-gray-600">💬 {button.responseMessage}</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* User Interactions Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Interações dos Usuários</CardTitle>
-            <CardDescription>
-              Usuários que comentaram e receberam DMs automaticamente
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="w-5 h-5" />
+                  <span>Interações dos Usuários</span>
+                </CardTitle>
+                <CardDescription>
+                  Usuários que comentaram e receberam DMs ({filteredInteractions.length} de {totalInteractions})
+                </CardDescription>
+              </div>
+              <Button variant="outline" size="sm">
+                <Download className="w-4 h-4 mr-2" />
+                Exportar Lista
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
+            {/* Filters */}
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="flex-1">
+                <Input
+                  placeholder="Buscar usuário..."
+                  value={searchUser}
+                  onChange={(e) => setSearchUser(e.target.value)}
+                  className="max-w-xs"
+                />
+              </div>
+              <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos Status</SelectItem>
+                  <SelectItem value="sent">Enviadas</SelectItem>
+                  <SelectItem value="delivered">Entregues</SelectItem>
+                  <SelectItem value="read">Lidas</SelectItem>
+                  <SelectItem value="error">Erro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Table */}
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Usuário</TableHead>
+                    <TableHead className="w-60">Usuário</TableHead>
                     <TableHead>Palavra-chave</TableHead>
-                    <TableHead>Comentário</TableHead>
+                    <TableHead className="max-w-xs">Comentário</TableHead>
                     <TableHead>Status DM</TableHead>
-                    <TableHead>Clicou</TableHead>
-                    <TableHead>Converteu</TableHead>
-                    <TableHead>Data</TableHead>
                     <TableHead>Ações</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Perfil</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {userInteractions.map((interaction) => (
-                    <TableRow key={interaction.id}>
+                  {filteredInteractions.map((interaction) => (
+                    <TableRow key={interaction.id} className="hover:bg-gray-50">
                       <TableCell>
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">
-                              {interaction.fullName.charAt(0)}
-                            </span>
-                          </div>
+                          <Avatar className="w-10 h-10">
+                            <AvatarFallback className="bg-gradient-to-r from-purple-400 to-pink-400 text-white">
+                              {interaction.fullName.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
                           <div>
                             <p className="font-medium text-sm">@{interaction.username}</p>
                             <p className="text-xs text-gray-500">{interaction.fullName}</p>
-                            <p className="text-xs text-gray-400">{interaction.followers.toLocaleString()} seguidores</p>
+                            <p className="text-xs text-gray-400 flex items-center">
+                              <Users className="w-3 h-3 mr-1" />
+                              {interaction.followers.toLocaleString()}
+                            </p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="outline" className="text-xs">
                           #{interaction.keyword}
                         </Badge>
                       </TableCell>
                       <TableCell className="max-w-xs">
-                        <p className="text-sm truncate">{interaction.comment}</p>
+                        <p className="text-sm truncate" title={interaction.comment}>
+                          {interaction.comment}
+                        </p>
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(interaction.messageStatus)}
                       </TableCell>
                       <TableCell>
-                        {interaction.clicked ? (
-                          <Badge className="bg-green-500 text-xs">Sim</Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-xs">Não</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {interaction.converted ? (
-                          <Badge className="bg-purple-500 text-xs">Sim</Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-xs">Não</Badge>
-                        )}
+                        <div className="flex items-center space-x-1">
+                          {interaction.clicked && (
+                            <Badge className="bg-green-500 text-xs">
+                              <Eye className="w-3 h-3 mr-1" />
+                              Clicou
+                            </Badge>
+                          )}
+                          {interaction.converted && (
+                            <Badge className="bg-purple-500 text-xs">
+                              <Target className="w-3 h-3 mr-1" />
+                              Converteu
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-sm">
-                        {formatTime(interaction.commentTime)}
+                        <div>
+                          <p>{formatRelativeTime(interaction.commentTime)}</p>
+                          <p className="text-xs text-gray-500">
+                            {formatDate(interaction.commentTime)}
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button size="sm" variant="outline" asChild>
@@ -603,128 +963,22 @@ const CampaignDetails = () => {
                 </TableBody>
               </Table>
             </div>
+
+            {filteredInteractions.length === 0 && (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Nenhuma interação encontrada
+                </h3>
+                <p className="text-gray-500">
+                  {searchUser || filterStatus !== 'all' 
+                    ? "Tente ajustar os filtros para ver mais interações."
+                    : "As interações dos usuários aparecerão aqui quando a campanha estiver ativa."}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
-
-        {/* Message Editing Dialog */}
-        <Dialog open={editingMessage} onOpenChange={setEditingMessage}>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>Editar Configuração da Mensagem</DialogTitle>
-              <DialogDescription>
-                Personalize todos os aspectos da mensagem automática
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-6">
-              {/* Message Type Selection */}
-              <div className="space-y-3">
-                <Label>Tipo de Mensagem</Label>
-                <Select value={editedMessageType} onValueChange={(value: any) => setEditedMessageType(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="simple">Mensagem Simples</SelectItem>
-                    <SelectItem value="link">Mensagem com Link</SelectItem>
-                    <SelectItem value="button">Mensagem com Botão</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Message Content */}
-              <div className="space-y-2">
-                <Label>Conteúdo da Mensagem</Label>
-                <Textarea
-                  value={editedMessage}
-                  onChange={(e) => setEditedMessage(e.target.value)}
-                  rows={4}
-                  placeholder="Oi {first_name}! Vi seu interesse no meu post..."
-                />
-              </div>
-
-              {/* Link Configuration */}
-              {editedMessageType === 'link' && (
-                <div className="space-y-2">
-                  <Label>URL do Link</Label>
-                  <Input
-                    type="url"
-                    value={editedLinkUrl}
-                    onChange={(e) => setEditedLinkUrl(e.target.value)}
-                    placeholder="https://meusite.com/oferta"
-                  />
-                </div>
-              )}
-
-              {/* Button Configuration */}
-              {editedMessageType === 'button' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label>Botões (máx. 2)</Label>
-                    <Button 
-                      size="sm" 
-                      onClick={addButton} 
-                      disabled={editedButtons.length >= 2}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Adicionar Botão
-                    </Button>
-                  </div>
-                  
-                  {editedButtons.map((button, index) => (
-                    <div key={index} className="p-4 border rounded-lg space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Label>Botão {index + 1}</Label>
-                        <Button size="sm" variant="destructive" onClick={() => removeButton(index)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label className="text-sm">Nome do Botão</Label>
-                          <Input
-                            value={button.name}
-                            onChange={(e) => updateButton(index, 'name', e.target.value)}
-                            placeholder="Ex: Ver Oferta"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-sm">URL do Botão</Label>
-                          <Input
-                            type="url"
-                            value={button.url}
-                            onChange={(e) => updateButton(index, 'url', e.target.value)}
-                            placeholder="https://exemplo.com"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-sm">Mensagem de Resposta</Label>
-                        <Textarea
-                          value={button.responseMessage}
-                          onChange={(e) => updateButton(index, 'responseMessage', e.target.value)}
-                          placeholder="Obrigado pelo interesse! Aqui está mais informações..."
-                          rows={2}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setEditingMessage(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleSaveMessage}>
-                  Salvar Alterações
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </Layout>
   );
