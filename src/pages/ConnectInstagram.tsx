@@ -31,6 +31,15 @@ const ConnectInstagram = () => {
   const queryClient = useQueryClient();
   const { isInMVPMode } = useAuth();
 
+  // Check Instagram configuration status
+  const { data: configStatus, isLoading: isCheckingConfig } = useQuery({
+    queryKey: ["instagram-config-status"],
+    queryFn: checkInstagramConfig,
+    enabled: !isInMVPMode,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
   // Handle OAuth callback results
   useEffect(() => {
     const success = searchParams.get('success');
