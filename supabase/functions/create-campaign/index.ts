@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -13,10 +12,14 @@ serve(async (req) => {
   }
 
   try {
-    const { name, accountId, postUrl, keywords, dmTemplate } = await req.json()
-    
-    if (!name || !postUrl || !keywords || !dmTemplate) {
+    const { name, accountId, postUrl, keywords, dmTemplate, listenAllComments } = await req.json()
+
+    if (!name || !postUrl || !dmTemplate) {
       throw new Error('Missing required fields')
+    }
+
+    if (!listenAllComments && (!keywords || keywords.length === 0)) {
+      throw new Error('Keywords required when not listening to all comments')
     }
 
     // Get auth header to identify user
