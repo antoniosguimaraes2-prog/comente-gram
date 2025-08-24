@@ -97,3 +97,16 @@ export const getMVPInsights = () => {
     totalMessages: Math.floor(Math.random() * 80) + automations.length * 3, // Simulated
   };
 };
+
+// Create example campaign for testing
+export const createExampleCampaign = (): MVPAutomation => {
+  return addMVPAutomation({
+    name: 'Campanha de Exemplo',
+    accountName: 'Minha Conta Instagram',
+    postUrl: 'https://instagram.com/p/exemplo123',
+    keywords: ['interessado', 'preço', 'info'],
+    dmTemplate: 'Oi! Vi que você comentou no meu post. Te mando mais informações por aqui! 😊',
+    messageType: 'simple',
+    active: true
+  });
+};
