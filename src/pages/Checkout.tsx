@@ -129,7 +129,90 @@ const Checkout = () => {
     }
   };
 
-  const isFormValid = formData.email && formData.name && formData.cardNumber && formData.expiryDate && formData.cvv && formData.nameOnCard;
+  // Check payment status on success page
+  useEffect(() => {
+    if (isSuccessPage && paymentId) {
+      checkPaymentStatus(paymentId);
+    }
+  }, [isSuccessPage, paymentId]);
+
+  const checkPaymentStatus = async (paymentId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('status, plan_name')
+        .eq('id', paymentId)
+        .single();
+
+      if (error) {
+        console.error('Error checking payment status:', error);
+        return;
+      }
+
+      if (data.status === 'approved') {
+        toast({
+          title: "✅ Pagamento Confirmado!",
+          description: `Bem-vindo ao plano ${data.plan_name}! Sua conta foi ativada.`,
+        });
+        // Redirect to dashboard after a few seconds
+        setTimeout(() => {
+          navigate("/campaigns");
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Error checking payment:', error);
+    }
+  };
+
+  const isFormValid = formData.email && formData.name;
+
+  // Success page rendering
+  if (isSuccessPage) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center space-x-2">
+                <Instagram className="w-8 h-8 text-purple-600" />
+                <span className="text-xl font-bold text-gray-900">ComenteDM</span>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-2xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center">
+          <div className="space-y-8">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle className="w-12 h-12 text-green-600" />
+            </div>
+
+            <div className="space-y-4">
+              <h1 className="text-3xl font-bold text-gray-900">
+                Pagamento Recebido!
+              </h1>
+              <p className="text-lg text-gray-600">
+                Estamos processando seu pagamento. Você receberá um email de confirmação em instantes.
+              </p>
+              <p className="text-sm text-gray-500">
+                Redirecionando para o dashboard...
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center">
+              <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+            </div>
+
+            <Link to="/campaigns">
+              <Button>
+                Ir para Dashboard
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
