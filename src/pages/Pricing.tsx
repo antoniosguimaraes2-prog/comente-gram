@@ -364,6 +364,13 @@ const Pricing = () => {
                     <td className="px-6 py-4 text-center text-sm">Prioritário</td>
                     <td className="px-6 py-4 text-center text-sm">Dedicado</td>
                   </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-900">Mensagens Extras</td>
+                    <td className="px-6 py-4 text-center text-sm font-medium text-purple-600">R$ 12/1.000</td>
+                    <td className="px-6 py-4 text-center text-sm font-medium text-purple-600">R$ 12/1.000</td>
+                    <td className="px-6 py-4 text-center text-sm font-medium text-purple-600">R$ 12/1.000</td>
+                    <td className="px-6 py-4 text-center text-sm">Sob consulta</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
