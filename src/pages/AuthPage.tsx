@@ -224,7 +224,17 @@ const AuthPage = () => {
           <div className="flex items-center justify-center mb-4">
             <Instagram className="w-10 h-10 text-purple-600 mr-3" />
             <div>
-              <CardTitle className="text-2xl font-bold">ComenteDM</CardTitle>
+              <div className="flex items-center gap-2 mb-1">
+                <CardTitle className="text-2xl font-bold">ComenteDM</CardTitle>
+                {!configLoading && (
+                  <Badge
+                    variant={isGoogleConfigured ? "default" : "secondary"}
+                    className={isGoogleConfigured ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
+                  >
+                    {isGoogleConfigured ? "✅ Pronto" : "⚙️ Config"}
+                  </Badge>
+                )}
+              </div>
               <CardDescription>
                 Automação de DMs no Instagram
               </CardDescription>
