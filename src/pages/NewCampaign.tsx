@@ -151,6 +151,9 @@ const NewCampaign = () => {
           postUrl: `https://instagram.com/p/${finalData.selectedPosts[0]?.id}`,
           keywords: finalData.keywords,
           dmTemplate: finalData.messageContent,
+          messageType: finalData.messageType,
+          linkUrl: finalData.linkUrl,
+          buttons: finalData.buttons,
         });
         return { success: true };
       }
