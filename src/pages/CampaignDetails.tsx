@@ -9,44 +9,35 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Calendar, 
-  MessageCircle, 
-  Send, 
-  TrendingUp, 
-  Users, 
-  Eye,
-  Clock,
-  Heart,
-  Zap,
   ArrowLeft,
   Play,
   Pause,
-  Download,
   Edit,
-  Trash2,
-  Plus,
-  X,
   Save,
-  Image,
-  Video,
-  LinkIcon,
-  MousePointer,
-  Hash,
+  X,
+  Plus,
+  Trash2,
   ExternalLink,
+  Instagram,
+  MessageCircle,
+  Send,
+  Eye,
+  Users,
+  TrendingUp,
+  Hash,
   Copy,
   Check,
-  AlertTriangle,
+  Image,
+  BarChart3,
+  Settings,
   Activity,
-  Target,
-  Share2,
-  BarChart3
+  Target
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { getMVPAutomations, updateMVPAutomation, type MVPAutomation } from "@/lib/mvp";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -56,15 +47,13 @@ interface UserInteraction {
   fullName: string;
   followers: number;
   profileUrl: string;
-  avatarUrl?: string;
   keyword: string;
   comment: string;
   commentTime: string;
-  messageStatus: 'sent' | 'delivered' | 'read' | 'error' | 'pending';
+  messageStatus: 'enviada' | 'entregue' | 'lida' | 'erro';
   dmSentTime?: string;
   clicked: boolean;
   converted: boolean;
-  lastActivity: string;
 }
 
 interface Button {
@@ -84,33 +73,22 @@ const generateUserInteractions = (campaignId: string): UserInteraction[] => {
     { username: 'bruno_alves', fullName: 'Bruno Alves', followers: 1890 },
     { username: 'camila_rocha', fullName: 'Camila Rocha', followers: 445 },
     { username: 'rafael_mendes', fullName: 'Rafael Mendes', followers: 2187 },
-    { username: 'julia_castro', fullName: 'Júlia Castro', followers: 756 },
-    { username: 'fernando_silva', fullName: 'Fernando Silva', followers: 1234 },
-    { username: 'patricia_lima', fullName: 'Patrícia Lima', followers: 987 },
-    { username: 'rodrigo_santos', fullName: 'Rodrigo Santos', followers: 2345 },
-    { username: 'amanda_costa', fullName: 'Amanda Costa', followers: 1567 },
-    { username: 'gabriel_oliveira', fullName: 'Gabriel Oliveira', followers: 876 }
+    { username: 'julia_castro', fullName: 'Júlia Castro', followers: 756 }
   ];
 
-  const keywords = ['interessado', 'preço', 'info', 'comprar', 'dúvida', 'quero', 'valor', 'disponível'];
-  const statuses: UserInteraction['messageStatus'][] = ['sent', 'delivered', 'read', 'error', 'pending'];
+  const keywords = ['interessado', 'preço', 'info', 'comprar', 'dúvida'];
+  const statuses: UserInteraction['messageStatus'][] = ['enviada', 'entregue', 'lida', 'erro'];
   const comments = [
     'Estou interessado neste produto!',
     'Qual o preço?',
     'Me manda mais informações',
     'Quero comprar',
-    'Tenho uma dúvida',
-    'Está disponível?',
-    'Como faço para adquirir?',
-    'Aceita cartão?',
-    'Tem desconto?',
-    'Entrega para todo Brasil?'
+    'Tenho uma dúvida sobre o produto'
   ];
 
-  return Array.from({ length: 20 }, (_, i) => {
+  return Array.from({ length: 12 }, (_, i) => {
     const user = users[Math.floor(Math.random() * users.length)];
     const commentTime = new Date(Date.now() - Math.random() * 86400000 * 7);
-    const dmTime = new Date(commentTime.getTime() + Math.random() * 3600000);
     
     return {
       id: `interaction_${campaignId}_${i}`,
@@ -118,15 +96,13 @@ const generateUserInteractions = (campaignId: string): UserInteraction[] => {
       fullName: user.fullName,
       followers: user.followers,
       profileUrl: `https://instagram.com/${user.username}`,
-      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`,
       keyword: keywords[Math.floor(Math.random() * keywords.length)],
       comment: comments[Math.floor(Math.random() * comments.length)],
       commentTime: commentTime.toISOString(),
       messageStatus: statuses[Math.floor(Math.random() * statuses.length)],
-      dmSentTime: dmTime.toISOString(),
+      dmSentTime: new Date(commentTime.getTime() + Math.random() * 3600000).toISOString(),
       clicked: Math.random() > 0.6,
-      converted: Math.random() > 0.8,
-      lastActivity: new Date(Date.now() - Math.random() * 86400000 * 2).toISOString()
+      converted: Math.random() > 0.8
     };
   }).sort((a, b) => new Date(b.commentTime).getTime() - new Date(a.commentTime).getTime());
 };
@@ -140,7 +116,7 @@ const CampaignDetails = () => {
 
   const [campaign, setCampaign] = useState<MVPAutomation | null>(null);
   const [userInteractions, setUserInteractions] = useState<UserInteraction[]>([]);
-  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({
     name: '',
     keywords: [] as string[],
@@ -152,8 +128,6 @@ const CampaignDetails = () => {
   });
   
   const [copied, setCopied] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'sent' | 'delivered' | 'read' | 'error'>('all');
-  const [searchUser, setSearchUser] = useState('');
 
   useEffect(() => {
     if (!campaignId) return;
@@ -187,7 +161,6 @@ const CampaignDetails = () => {
         return updates;
       }
 
-      // TODO: Implement real API call for production mode
       throw new Error('Modo produção não implementado');
     },
     onSuccess: (updates) => {
@@ -197,9 +170,9 @@ const CampaignDetails = () => {
       }
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       queryClient.invalidateQueries({ queryKey: ["automations"] });
-      setEditingField(null);
+      setEditingSection(null);
       toast({
-        title: "✅ Atualizado com sucesso",
+        title: "✅ Salvo com sucesso",
         description: "As alterações foram salvas.",
       });
     },
@@ -212,12 +185,12 @@ const CampaignDetails = () => {
     }
   });
 
-  const handleSaveField = (field: string) => {
+  const handleSave = (section: string) => {
     if (!campaign) return;
 
     let updates: Partial<MVPAutomation> = {};
 
-    switch (field) {
+    switch (section) {
       case 'name':
         if (editValues.name.trim()) {
           updates.name = editValues.name.trim();
@@ -251,11 +224,20 @@ const CampaignDetails = () => {
     }
   };
 
-  const handleRemoveKeyword = (keyword: string) => {
-    setEditValues(prev => ({
-      ...prev,
-      keywords: prev.keywords.filter(k => k !== keyword)
-    }));
+  const handleToggleKeyword = (keyword: string, enabled: boolean) => {
+    if (enabled) {
+      if (!editValues.keywords.includes(keyword)) {
+        setEditValues(prev => ({
+          ...prev,
+          keywords: [...prev.keywords, keyword]
+        }));
+      }
+    } else {
+      setEditValues(prev => ({
+        ...prev,
+        keywords: prev.keywords.filter(k => k !== keyword)
+      }));
+    }
   };
 
   const handleAddButton = () => {
@@ -305,62 +287,32 @@ const CampaignDetails = () => {
     return new Date(dateString).toLocaleDateString("pt-BR", {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  const formatRelativeTime = (dateString: string) => {
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Agora mesmo';
-    if (diffInMinutes < 60) return `${diffInMinutes}m atrás`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h atrás`;
-    return `${Math.floor(diffInMinutes / 1440)}d atrás`;
-  };
-
   const getStatusBadge = (status: UserInteraction['messageStatus']) => {
     const variants = {
-      sent: { variant: "secondary" as const, text: "Enviada", icon: Send },
-      delivered: { variant: "default" as const, text: "Entregue", icon: Check },
-      read: { variant: "default" as const, text: "Lida", className: "bg-green-500", icon: Eye },
-      error: { variant: "destructive" as const, text: "Erro", icon: AlertTriangle },
-      pending: { variant: "secondary" as const, text: "Pendente", icon: Clock }
+      enviada: { color: "bg-blue-100 text-blue-800", text: "Enviada" },
+      entregue: { color: "bg-green-100 text-green-800", text: "Entregue" },
+      lida: { color: "bg-purple-100 text-purple-800", text: "Lida" },
+      erro: { color: "bg-red-100 text-red-800", text: "Erro" }
     };
 
     const config = variants[status];
-    const Icon = config.icon;
-
     return (
-      <Badge variant={config.variant} className={config.className}>
-        <Icon className="w-3 h-3 mr-1" />
+      <Badge className={`${config.color} border-0`}>
         {config.text}
       </Badge>
     );
   };
 
-  // Filter interactions
-  const filteredInteractions = userInteractions.filter(interaction => {
-    const matchesStatus = filterStatus === 'all' || interaction.messageStatus === filterStatus;
-    const matchesSearch = !searchUser || 
-      interaction.username.toLowerCase().includes(searchUser.toLowerCase()) ||
-      interaction.fullName.toLowerCase().includes(searchUser.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
-
   // Calculate metrics
   const totalInteractions = userInteractions.length;
-  const sentMessages = userInteractions.filter(u => u.messageStatus !== 'error' && u.messageStatus !== 'pending').length;
+  const sentMessages = userInteractions.filter(u => u.messageStatus !== 'erro').length;
   const totalClicks = userInteractions.filter(u => u.clicked).length;
   const totalConversions = userInteractions.filter(u => u.converted).length;
-  const readMessages = userInteractions.filter(u => u.messageStatus === 'read').length;
-  
-  const clickRate = sentMessages > 0 ? ((totalClicks / sentMessages) * 100).toFixed(1) : "0.0";
-  const conversionRate = sentMessages > 0 ? ((totalConversions / sentMessages) * 100).toFixed(1) : "0.0";
-  const readRate = sentMessages > 0 ? ((readMessages / sentMessages) * 100).toFixed(1) : "0.0";
 
   if (!campaign) {
     return <Navigate to="/campaigns" replace />;
@@ -368,7 +320,7 @@ const CampaignDetails = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -377,608 +329,505 @@ const CampaignDetails = () => {
               Voltar
             </Button>
             <div>
-              <div className="flex items-center space-x-3 mb-2">
-                {editingField === 'name' ? (
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      value={editValues.name}
-                      onChange={(e) => setEditValues(prev => ({ ...prev, name: e.target.value }))}
-                      className="text-2xl font-bold h-10 w-80"
-                      onKeyPress={(e) => e.key === 'Enter' && handleSaveField('name')}
-                    />
-                    <Button size="sm" onClick={() => handleSaveField('name')}>
-                      <Save className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => setEditingField(null)}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <h1 className="text-2xl font-bold">{campaign.name}</h1>
-                    <Button size="sm" variant="outline" onClick={() => setEditingField('name')}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
-                
-                <Badge variant="secondary">
-                  <Zap className="w-3 h-3 mr-1" />
-                  {isInMVPMode ? 'Modo MVP' : 'Produção'}
-                </Badge>
-                
-                <Badge variant={campaign.active ? "default" : "secondary"}>
-                  <Activity className="w-3 h-3 mr-1" />
-                  {campaign.active ? "Ativa" : "Pausada"}
-                </Badge>
-              </div>
-              
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>Criada em {formatDate(campaign.createdAt)}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Target className="w-4 h-4" />
-                  <span>{campaign.accountName}</span>
-                </div>
-              </div>
+              <h1 className="text-2xl font-bold text-gray-900">Detalhes da Campanha</h1>
+              <p className="text-gray-600">Gerencie e monitore sua automação</p>
             </div>
           </div>
           
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-2" />
-              Exportar
-            </Button>
             <Button
-              onClick={() => handleSaveField('status')}
+              onClick={() => handleSave('status')}
               variant={campaign.active ? "destructive" : "default"}
               disabled={updateCampaignMutation.isPending}
             >
               {campaign.active ? (
                 <>
                   <Pause className="w-4 h-4 mr-2" />
-                  Pausar
+                  Pausar Campanha
                 </>
               ) : (
                 <>
                   <Play className="w-4 h-4 mr-2" />
-                  Ativar
+                  Ativar Campanha
                 </>
               )}
             </Button>
           </div>
         </div>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-600">Interações</p>
-                  <p className="text-2xl font-bold">{totalInteractions}</p>
-                </div>
-                <MessageCircle className="w-6 h-6 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-600">DMs Enviadas</p>
-                  <p className="text-2xl font-bold">{sentMessages}</p>
-                </div>
-                <Send className="w-6 h-6 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-600">Taxa Leitura</p>
-                  <p className="text-2xl font-bold">{readRate}%</p>
-                </div>
-                <Eye className="w-6 h-6 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-600">Cliques</p>
-                  <p className="text-2xl font-bold">{totalClicks}</p>
-                </div>
-                <TrendingUp className="w-6 h-6 text-orange-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-600">Taxa Clique</p>
-                  <p className="text-2xl font-bold">{clickRate}%</p>
-                </div>
-                <BarChart3 className="w-6 h-6 text-indigo-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-600">Conversões</p>
-                  <p className="text-2xl font-bold">{conversionRate}%</p>
-                </div>
-                <Users className="w-6 h-6 text-red-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Posts Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <Image className="w-5 h-5" />
-                <span>Publicações Monitoradas</span>
-              </CardTitle>
-              <Badge variant="secondary">1 publicação</Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-4 p-4 border rounded-lg bg-gray-50">
-              <div className="w-16 h-16 bg-gradient-to-r from-pink-400 to-purple-400 rounded-lg flex items-center justify-center">
-                <Image className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">Post Principal</p>
-                <p className="text-sm text-gray-600 break-all mb-2">{campaign.postUrl}</p>
-                <div className="flex items-center space-x-4 text-xs text-gray-500">
-                  <span className="flex items-center space-x-1">
-                    <MessageCircle className="w-3 h-3" />
-                    <span>{totalInteractions} interações</span>
-                  </span>
-                  <span className="flex items-center space-x-1">
-                    <Send className="w-3 h-3" />
-                    <span>{sentMessages} DMs enviadas</span>
-                  </span>
-                  <span className="flex items-center space-x-1">
-                    <Activity className="w-3 h-3" />
-                    <span>{campaign.active ? 'Ativa' : 'Pausada'}</span>
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button size="sm" variant="outline" onClick={() => copyToClipboard(campaign.postUrl)}>
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </Button>
-                <Button size="sm" variant="outline" asChild>
-                  <a href={campaign.postUrl} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Keywords Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <Hash className="w-5 h-5" />
-                <span>Palavras-chave</span>
-              </CardTitle>
-              <div className="flex items-center space-x-2">
-                <Badge variant="secondary">{editValues.keywords.length} palavra(s)</Badge>
-                {editingField !== 'keywords' && (
-                  <Button size="sm" variant="outline" onClick={() => setEditingField('keywords')}>
-                    <Edit className="w-4 h-4 mr-1" />
-                    Editar
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {editingField === 'keywords' ? (
-              <div className="space-y-4">
-                <div className="flex space-x-2">
-                  <Input
-                    placeholder="Nova palavra-chave..."
-                    value={editValues.newKeyword}
-                    onChange={(e) => setEditValues(prev => ({ ...prev, newKeyword: e.target.value }))}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddKeyword()}
-                  />
-                  <Button onClick={handleAddKeyword} disabled={!editValues.newKeyword.trim()}>
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  {editValues.keywords.map(keyword => (
-                    <div key={keyword} className="flex items-center bg-blue-100 text-blue-800 rounded-full px-3 py-1">
-                      <Hash className="w-3 h-3 mr-1" />
-                      <span className="text-sm">{keyword}</span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-auto p-0 ml-2 text-red-500 hover:text-red-700"
-                        onClick={() => handleRemoveKeyword(keyword)}
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex space-x-2">
-                  <Button onClick={() => handleSaveField('keywords')}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Salvar
-                  </Button>
-                  <Button variant="outline" onClick={() => setEditingField(null)}>
-                    Cancelar
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {campaign.keywords.map(keyword => (
-                  <Badge key={keyword} variant="secondary" className="flex items-center">
-                    <Hash className="w-3 h-3 mr-1" />
-                    {keyword}
-                  </Badge>
-                ))}
-                {campaign.keywords.length === 0 && (
-                  <p className="text-gray-500 text-sm">Nenhuma palavra-chave configurada</p>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Message Configuration */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <MessageCircle className="w-5 h-5" />
-                <span>Configuração da Mensagem</span>
-              </CardTitle>
-              {editingField !== 'message' && (
-                <Button size="sm" variant="outline" onClick={() => setEditingField('message')}>
-                  <Edit className="w-4 h-4 mr-1" />
-                  Editar
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {editingField === 'message' ? (
-              <div className="space-y-6">
-                {/* Message Type */}
-                <div className="space-y-2">
-                  <Label>Tipo de Mensagem</Label>
-                  <Select 
-                    value={editValues.messageType} 
-                    onValueChange={(value: any) => setEditValues(prev => ({ ...prev, messageType: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="simple">
-                        <div className="flex items-center space-x-2">
-                          <MessageCircle className="w-4 h-4" />
-                          <span>Mensagem Simples</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="link">
-                        <div className="flex items-center space-x-2">
-                          <LinkIcon className="w-4 h-4" />
-                          <span>Mensagem com Link</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="button">
-                        <div className="flex items-center space-x-2">
-                          <MousePointer className="w-4 h-4" />
-                          <span>Mensagem com Botão</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Message Content */}
-                <div className="space-y-2">
-                  <Label>Conteúdo da Mensagem</Label>
-                  <Textarea
-                    value={editValues.messageContent}
-                    onChange={(e) => setEditValues(prev => ({ ...prev, messageContent: e.target.value }))}
-                    rows={4}
-                    placeholder="Oi {first_name}! Vi seu interesse no meu post..."
-                  />
-                </div>
-
-                {/* Link Configuration */}
-                {editValues.messageType === 'link' && (
-                  <div className="space-y-2">
-                    <Label>URL do Link</Label>
-                    <Input
-                      type="url"
-                      value={editValues.linkUrl}
-                      onChange={(e) => setEditValues(prev => ({ ...prev, linkUrl: e.target.value }))}
-                      placeholder="https://meusite.com/oferta"
-                    />
-                  </div>
-                )}
-
-                {/* Button Configuration */}
-                {editValues.messageType === 'button' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Main Details */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Visão Geral */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Image className="w-5 h-5" />
+                  <span>Visão Geral</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Post Preview */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label>Botões (máx. 2)</Label>
+                    <div className="w-full h-64 bg-gradient-to-br from-purple-400 via-pink-500 to-orange-400 rounded-lg flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-4 bg-white rounded-lg flex items-center justify-center">
+                        <Instagram className="w-16 h-16 text-gray-400" />
+                      </div>
+                    </div>
+                    <div className="text-sm space-y-2">
+                      <p className="font-medium">Publicação em 15/01/2024</p>
+                      <p className="text-gray-600">39 comentários detectados</p>
                       <Button 
+                        variant="outline" 
                         size="sm" 
-                        onClick={handleAddButton} 
-                        disabled={editValues.buttons.length >= 2}
+                        className="w-full"
+                        onClick={() => copyToClipboard(campaign.postUrl)}
                       >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Adicionar
+                        {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                        Copiar Link do Post
                       </Button>
                     </div>
-                    
-                    {editValues.buttons.map((button, index) => (
-                      <div key={index} className="p-4 border rounded-lg space-y-3 bg-gray-50">
+                  </div>
+
+                  {/* Campaign Info */}
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Nome da Campanha</Label>
+                      {editingSection === 'name' ? (
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Input
+                            value={editValues.name}
+                            onChange={(e) => setEditValues(prev => ({ ...prev, name: e.target.value }))}
+                            className="flex-1"
+                          />
+                          <Button size="sm" onClick={() => handleSave('name')}>
+                            <Save className="w-4 h-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingSection(null)}>
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between mt-1">
+                          <p className="font-medium">{campaign.name}</p>
+                          <Button size="sm" variant="outline" onClick={() => setEditingSection('name')}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Status</Label>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge variant={campaign.active ? "default" : "secondary"}>
+                          <Activity className="w-3 h-3 mr-1" />
+                          {campaign.active ? "Ativa" : "Pausada"}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Criada em</Label>
+                      <p className="mt-1">{formatDate(campaign.createdAt)}</p>
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Conta</Label>
+                      <p className="mt-1">{campaign.accountName}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Configurações da Campanha */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="w-5 h-5" />
+                  <span>Configurações da Campanha</span>
+                </CardTitle>
+                <CardDescription>
+                  Configure a mensagem e ações automáticas
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {editingSection === 'message' ? (
+                  <div className="space-y-6">
+                    <div>
+                      <Label>Tipo de Mensagem</Label>
+                      <Select 
+                        value={editValues.messageType} 
+                        onValueChange={(value: any) => setEditValues(prev => ({ ...prev, messageType: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="simple">Mensagem Simples</SelectItem>
+                          <SelectItem value="link">Mensagem com Link</SelectItem>
+                          <SelectItem value="button">Mensagem com Botão</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label>Mensagem de DM</Label>
+                      <Textarea
+                        value={editValues.messageContent}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, messageContent: e.target.value }))}
+                        rows={4}
+                        className="mt-1"
+                        placeholder="Oi! Vi que você comentou no meu post..."
+                      />
+                    </div>
+
+                    {editValues.messageType === 'link' && (
+                      <div>
+                        <Label>Link</Label>
+                        <Input
+                          type="url"
+                          value={editValues.linkUrl}
+                          onChange={(e) => setEditValues(prev => ({ ...prev, linkUrl: e.target.value }))}
+                          className="mt-1"
+                          placeholder="https://meusite.com"
+                        />
+                      </div>
+                    )}
+
+                    {editValues.messageType === 'button' && (
+                      <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <Label>Botão {index + 1}</Label>
-                          <Button size="sm" variant="destructive" onClick={() => handleRemoveButton(index)}>
-                            <Trash2 className="w-4 h-4" />
+                          <Label>Botões (máx. 2)</Label>
+                          <Button 
+                            size="sm" 
+                            onClick={handleAddButton} 
+                            disabled={editValues.buttons.length >= 2}
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Adicionar
                           </Button>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <Label className="text-sm">Nome</Label>
-                            <Input
-                              value={button.name}
-                              onChange={(e) => handleUpdateButton(index, 'name', e.target.value)}
-                              placeholder="Ex: Ver Oferta"
-                            />
+                        {editValues.buttons.map((button, index) => (
+                          <div key={index} className="p-4 border rounded-lg space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">Botão {index + 1}</span>
+                              <Button size="sm" variant="destructive" onClick={() => handleRemoveButton(index)}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-sm">Nome</Label>
+                                <Input
+                                  value={button.name}
+                                  onChange={(e) => handleUpdateButton(index, 'name', e.target.value)}
+                                  placeholder="Ver Oferta"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-sm">URL</Label>
+                                <Input
+                                  type="url"
+                                  value={button.url}
+                                  onChange={(e) => handleUpdateButton(index, 'url', e.target.value)}
+                                  placeholder="https://exemplo.com"
+                                />
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <Label className="text-sm">Mensagem de Resposta</Label>
+                              <Textarea
+                                value={button.responseMessage}
+                                onChange={(e) => handleUpdateButton(index, 'responseMessage', e.target.value)}
+                                placeholder="Obrigado pelo interesse!"
+                                rows={2}
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <Label className="text-sm">URL</Label>
-                            <Input
-                              type="url"
-                              value={button.url}
-                              onChange={(e) => handleUpdateButton(index, 'url', e.target.value)}
-                              placeholder="https://exemplo.com"
-                            />
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex space-x-2">
+                      <Button onClick={() => handleSave('message')}>
+                        <Save className="w-4 h-4 mr-2" />
+                        Salvar Alterações
+                      </Button>
+                      <Button variant="outline" onClick={() => setEditingSection(null)}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">
+                          Tipo: {campaign.messageType === 'simple' && 'Mensagem Simples'}
+                          {campaign.messageType === 'link' && 'Mensagem com Link'}
+                          {campaign.messageType === 'button' && 'Mensagem com Botão'}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                          {campaign.dmTemplate}
+                        </p>
+                      </div>
+                      <Button size="sm" variant="outline" onClick={() => setEditingSection('message')}>
+                        <Edit className="w-4 h-4 mr-1" />
+                        Editar
+                      </Button>
+                    </div>
+
+                    {campaign.messageType === 'link' && campaign.linkUrl && (
+                      <div className="p-3 bg-blue-50 rounded border">
+                        <p className="text-sm text-blue-600 break-all">{campaign.linkUrl}</p>
+                      </div>
+                    )}
+
+                    {campaign.messageType === 'button' && campaign.buttons && campaign.buttons.length > 0 && (
+                      <div className="space-y-2">
+                        {campaign.buttons.map((button: any, index: number) => (
+                          <div key={index} className="p-3 bg-green-50 rounded border">
+                            <p className="text-sm font-medium">{button.name}</p>
+                            <p className="text-xs text-gray-600 break-all">{button.url}</p>
                           </div>
-                        </div>
-                        
-                        <div>
-                          <Label className="text-sm">Mensagem de Resposta</Label>
-                          <Textarea
-                            value={button.responseMessage}
-                            onChange={(e) => handleUpdateButton(index, 'responseMessage', e.target.value)}
-                            placeholder="Obrigado pelo interesse!"
-                            rows={2}
-                          />
-                        </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
+              </CardContent>
+            </Card>
 
-                <div className="flex space-x-2">
-                  <Button onClick={() => handleSaveField('message')} disabled={updateCampaignMutation.isPending}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Salvar Mensagem
-                  </Button>
-                  <Button variant="outline" onClick={() => setEditingField(null)}>
-                    Cancelar
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  {campaign.messageType === 'simple' && <MessageCircle className="w-5 h-5 text-blue-500" />}
-                  {campaign.messageType === 'link' && <LinkIcon className="w-5 h-5 text-blue-500" />}
-                  {campaign.messageType === 'button' && <MousePointer className="w-5 h-5 text-blue-500" />}
-                  <span className="font-medium">
-                    {campaign.messageType === 'simple' && 'Mensagem Simples'}
-                    {campaign.messageType === 'link' && 'Mensagem com Link'}
-                    {campaign.messageType === 'button' && 'Mensagem com Botão'}
-                  </span>
-                </div>
-
-                <div className="p-4 bg-gray-50 rounded-lg border">
-                  <p className="text-sm whitespace-pre-wrap">{campaign.dmTemplate}</p>
-                </div>
-
-                {campaign.messageType === 'link' && campaign.linkUrl && (
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded">
-                    <p className="text-sm text-blue-600 break-all">{campaign.linkUrl}</p>
-                  </div>
-                )}
-
-                {campaign.messageType === 'button' && campaign.buttons && campaign.buttons.length > 0 && (
-                  <div className="space-y-2">
-                    {campaign.buttons.map((button: any, index: number) => (
-                      <div key={index} className="p-3 bg-green-50 border border-green-200 rounded">
-                        <div className="text-sm space-y-1">
-                          <p><span className="font-medium">📱 {button.name}</span></p>
-                          <p className="text-gray-600 break-all">🔗 {button.url}</p>
-                          <p className="text-gray-600">💬 {button.responseMessage}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* User Interactions Table */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
+            {/* Log de DMs Enviadas */}
+            <Card>
+              <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Users className="w-5 h-5" />
-                  <span>Interações dos Usuários</span>
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Log de DMs Enviadas</span>
                 </CardTitle>
                 <CardDescription>
-                  Usuários que comentaram e receberam DMs ({filteredInteractions.length} de {totalInteractions})
+                  Histórico de mensagens enviadas automaticamente
                 </CardDescription>
-              </div>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Exportar Lista
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {/* Filters */}
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="flex-1">
-                <Input
-                  placeholder="Buscar usuário..."
-                  value={searchUser}
-                  onChange={(e) => setSearchUser(e.target.value)}
-                  className="max-w-xs"
-                />
-              </div>
-              <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos Status</SelectItem>
-                  <SelectItem value="sent">Enviadas</SelectItem>
-                  <SelectItem value="delivered">Entregues</SelectItem>
-                  <SelectItem value="read">Lidas</SelectItem>
-                  <SelectItem value="error">Erro</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Table */}
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-60">Usuário</TableHead>
-                    <TableHead>Palavra-chave</TableHead>
-                    <TableHead className="max-w-xs">Comentário</TableHead>
-                    <TableHead>Status DM</TableHead>
-                    <TableHead>Ações</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Perfil</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredInteractions.map((interaction) => (
-                    <TableRow key={interaction.id} className="hover:bg-gray-50">
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="w-10 h-10">
-                            <AvatarFallback className="bg-gradient-to-r from-purple-400 to-pink-400 text-white">
-                              {interaction.fullName.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium text-sm">@{interaction.username}</p>
-                            <p className="text-xs text-gray-500">{interaction.fullName}</p>
-                            <p className="text-xs text-gray-400 flex items-center">
-                              <Users className="w-3 h-3 mr-1" />
-                              {interaction.followers.toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs">
-                          #{interaction.keyword}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <p className="text-sm truncate" title={interaction.comment}>
-                          {interaction.comment}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(interaction.messageStatus)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-1">
-                          {interaction.clicked && (
-                            <Badge className="bg-green-500 text-xs">
-                              <Eye className="w-3 h-3 mr-1" />
-                              Clicou
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Usuário</TableHead>
+                        <TableHead>Palavra-chave</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {userInteractions.slice(0, 8).map((interaction) => (
+                        <TableRow key={interaction.id}>
+                          <TableCell>
+                            <div className="flex items-center space-x-3">
+                              <Avatar className="w-8 h-8">
+                                <AvatarFallback className="bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs">
+                                  {interaction.fullName.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium text-sm">@{interaction.username}</p>
+                                <p className="text-xs text-gray-500">{interaction.followers.toLocaleString()} seguidores</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-xs">
+                              #{interaction.keyword}
                             </Badge>
-                          )}
-                          {interaction.converted && (
-                            <Badge className="bg-purple-500 text-xs">
-                              <Target className="w-3 h-3 mr-1" />
-                              Converteu
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        <div>
-                          <p>{formatRelativeTime(interaction.commentTime)}</p>
-                          <p className="text-xs text-gray-500">
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(interaction.messageStatus)}
+                          </TableCell>
+                          <TableCell className="text-sm">
                             {formatDate(interaction.commentTime)}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button size="sm" variant="outline" asChild>
-                          <a href={interaction.profileUrl} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="outline" asChild>
+                              <a href={interaction.profileUrl} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-            {filteredInteractions.length === 0 && (
-              <div className="text-center py-8">
-                <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Nenhuma interação encontrada
-                </h3>
-                <p className="text-gray-500">
-                  {searchUser || filterStatus !== 'all' 
-                    ? "Tente ajustar os filtros para ver mais interações."
-                    : "As interações dos usuários aparecerão aqui quando a campanha estiver ativa."}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          {/* Right Column - Keywords & Analytics */}
+          <div className="space-y-6">
+            {/* Palavras-Chave */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Hash className="w-5 h-5" />
+                  <span>Palavras-Chave</span>
+                </CardTitle>
+                <CardDescription>
+                  Configure quais palavras ativam as automações
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {editingSection === 'keywords' ? (
+                  <div className="space-y-4">
+                    <div className="flex space-x-2">
+                      <Input
+                        placeholder="Nova palavra-chave..."
+                        value={editValues.newKeyword}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, newKeyword: e.target.value }))}
+                        onKeyPress={(e) => e.key === 'Enter' && handleAddKeyword()}
+                      />
+                      <Button onClick={handleAddKeyword} size="sm">
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {['info', 'preço', 'interessado', 'comprar', 'dúvida'].map(keyword => (
+                        <div key={keyword} className="flex items-center justify-between p-2 border rounded">
+                          <span className="text-sm">#{keyword}</span>
+                          <Switch
+                            checked={editValues.keywords.includes(keyword)}
+                            onCheckedChange={(checked) => handleToggleKeyword(keyword, checked)}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex space-x-2">
+                      <Button onClick={() => handleSave('keywords')} size="sm">
+                        <Save className="w-4 h-4 mr-2" />
+                        Salvar
+                      </Button>
+                      <Button variant="outline" onClick={() => setEditingSection(null)} size="sm">
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Badge variant="secondary">{campaign.keywords.length} ativas</Badge>
+                      <Button size="sm" variant="outline" onClick={() => setEditingSection('keywords')}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {campaign.keywords.map(keyword => (
+                        <div key={keyword} className="flex items-center justify-between p-2 bg-green-50 rounded">
+                          <span className="text-sm font-medium">#{keyword}</span>
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Análise */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <BarChart3 className="w-5 h-5" />
+                  <span>Análise</span>
+                </CardTitle>
+                <CardDescription>
+                  Métricas desta campanha
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <MessageCircle className="w-4 h-4 text-blue-500" />
+                      <span className="text-sm">Comentários Detectados</span>
+                    </div>
+                    <span className="font-bold">{totalInteractions}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Send className="w-4 h-4 text-green-500" />
+                      <span className="text-sm">DMs Enviadas</span>
+                    </div>
+                    <span className="font-bold">{sentMessages}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <TrendingUp className="w-4 h-4 text-orange-500" />
+                      <span className="text-sm">Taxa de Envio</span>
+                    </div>
+                    <span className="font-bold">
+                      {totalInteractions > 0 ? ((sentMessages / totalInteractions) * 100).toFixed(0) : 0}%
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Ações */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Target className="w-5 h-5" />
+                  <span>Ações</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => handleSave('status')}
+                >
+                  {campaign.active ? (
+                    <>
+                      <Pause className="w-4 h-4 mr-2" />
+                      Pausar Campanha
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 mr-2" />
+                      Ativar Campanha
+                    </>
+                  )}
+                </Button>
+                
+                <Button 
+                  variant="destructive" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    if (confirm('Tem certeza que deseja excluir esta campanha?')) {
+                      // TODO: Implement delete
+                      navigate('/campaigns');
+                    }
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Excluir Campanha
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </Layout>
   );
