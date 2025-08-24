@@ -460,9 +460,9 @@ const CampaignDetails = () => {
                     <div className="text-sm space-y-2">
                       <p className="font-medium">Publicação monitorada</p>
                       <p className="text-gray-600">Status: {campaign.active ? 'Ativa' : 'Pausada'}</p>
-                      <a 
-                        href={campaign.postUrl} 
-                        target="_blank" 
+                      <a
+                        href={campaign.postUrl}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 text-sm break-all"
                       >
@@ -571,8 +571,8 @@ const CampaignDetails = () => {
                   <div className="space-y-6">
                     <div>
                       <Label>Tipo de Mensagem</Label>
-                      <Select 
-                        value={editValues.messageType} 
+                      <Select
+                        value={editValues.messageType}
                         onValueChange={(value: any) => setEditValues(prev => ({ ...prev, messageType: value }))}
                       >
                         <SelectTrigger className="mt-1">
@@ -629,16 +629,16 @@ const CampaignDetails = () => {
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <Label>Botões (máx. 2)</Label>
-                          <Button 
-                            size="sm" 
-                            onClick={handleAddButton} 
+                          <Button
+                            size="sm"
+                            onClick={handleAddButton}
                             disabled={editValues.buttons.length >= 2}
                           >
                             <Plus className="w-4 h-4 mr-1" />
                             Adicionar
                           </Button>
                         </div>
-                        
+
                         {editValues.buttons.map((button, index) => (
                           <div key={index} className="p-4 border rounded-lg space-y-3 bg-gray-50">
                             <div className="flex items-center justify-between">
@@ -647,7 +647,7 @@ const CampaignDetails = () => {
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-3">
                               <div>
                                 <Label className="text-sm">Nome</Label>
@@ -667,7 +667,7 @@ const CampaignDetails = () => {
                                 />
                               </div>
                             </div>
-                            
+
                             <div>
                               <Label className="text-sm">Mensagem de Resposta</Label>
                               <Textarea
@@ -719,9 +719,9 @@ const CampaignDetails = () => {
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Link</Label>
                         <div className="p-3 bg-blue-50 border border-blue-200 rounded mt-1">
-                          <a 
-                            href={campaign.linkUrl} 
-                            target="_blank" 
+                          <a
+                            href={campaign.linkUrl}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 break-all text-sm"
                           >
@@ -745,103 +745,6 @@ const CampaignDetails = () => {
                         </div>
                       </div>
                     )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Tabela de Comentários */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <MessageCircle className="w-5 h-5" />
-                  <span>Comentários Recebidos</span>
-                </CardTitle>
-                <CardDescription>
-                  Lista de todos os comentários detectados e ações tomadas
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Usuário</TableHead>
-                        <TableHead>Comentário</TableHead>
-                        <TableHead>Palavra-chave</TableHead>
-                        <TableHead>DM Enviado</TableHead>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {commentInteractions.map((interaction) => (
-                        <TableRow key={interaction.id}>
-                          <TableCell>
-                            <div className="flex items-center space-x-3">
-                              <Avatar className="w-8 h-8">
-                                <AvatarFallback className="bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs">
-                                  {interaction.fullName.split(' ').map(n => n[0]).join('')}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="font-medium text-sm">@{interaction.username}</p>
-                                <p className="text-xs text-gray-500">{interaction.fullName}</p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="max-w-xs">
-                            <p className="text-sm truncate" title={interaction.comment}>
-                              {interaction.comment}
-                            </p>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="text-xs">
-                              {interaction.keyword === 'todos' ? 'todos' : `#${interaction.keyword}`}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {interaction.dmSent ? (
-                              getStatusBadge(interaction.dmStatus)
-                            ) : (
-                              <Badge variant="secondary" className="text-xs">
-                                <Clock className="w-3 h-3 mr-1" />
-                                Não enviado
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {formatDate(interaction.commentDate)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-1">
-                              <Button size="sm" variant="outline" asChild>
-                                <a href={interaction.profileUrl} target="_blank" rel="noopener noreferrer">
-                                  <ExternalLink className="w-3 h-3" />
-                                </a>
-                              </Button>
-                              <Button size="sm" variant="outline" asChild>
-                                <a href={interaction.postUrl} target="_blank" rel="noopener noreferrer">
-                                  <Instagram className="w-3 h-3" />
-                                </a>
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {commentInteractions.length === 0 && (
-                  <div className="text-center py-8">
-                    <MessageCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Nenhum comentário ainda
-                    </h3>
-                    <p className="text-gray-500">
-                      Os comentários aparecerão aqui quando a campanha estiver ativa e receber interações.
-                    </p>
                   </div>
                 )}
               </CardContent>
