@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/providers/AuthProvider";
-import { getMVPAutomations, updateMVPAutomation, deleteMVPAutomation, createExampleCampaign } from "@/lib/mvp";
+import { getMVPAutomations, updateMVPAutomation, deleteMVPAutomation, createExampleCampaign, addMVPAutomation } from "@/lib/mvp";
 
 interface Campaign {
   id: string;
