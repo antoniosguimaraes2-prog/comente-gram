@@ -13,20 +13,20 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Loader2, 
-  Plus, 
-  Instagram, 
-  AlertCircle, 
-  Zap, 
-  ChevronLeft, 
+import {
+  Loader2,
+  Plus,
+  Instagram,
+  AlertCircle,
+  Zap,
+  ChevronLeft,
   ChevronRight,
   Check,
   Image,
   Video,
   X,
   MessageSquare,
-  Link,
+  Link as LinkIcon,
   MousePointer,
   Hash
 } from "lucide-react";
