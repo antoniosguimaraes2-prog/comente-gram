@@ -123,9 +123,9 @@ const AutomationCard = ({ automation }: AutomationCardProps) => {
       </CardContent>
       
       <CardFooter className="p-4 pt-0">
-        <Link to={isInMVPMode ? `/automations/${automation.id}` : `/posts/${automation.media_id}`} className="w-full">
-          <Button className="w-full">Ver Analytics</Button>
-        </Link>
+        <Button className="w-full" onClick={handleViewAnalytics}>
+          Ver Analytics
+        </Button>
       </CardFooter>
     </Card>
   );
