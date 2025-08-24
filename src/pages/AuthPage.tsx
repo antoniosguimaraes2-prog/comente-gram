@@ -343,8 +343,23 @@ const AuthPage = () => {
               </div>
             )}
 
-            <div className="border-t pt-2">
-              <p className="text-blue-600">
+            <div className="border-t pt-3 space-y-2">
+              <Button
+                onClick={refreshConfig}
+                disabled={configLoading}
+                size="sm"
+                variant="outline"
+                className="w-full"
+              >
+                {configLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  "🔄"
+                )}
+                Verificar configuração novamente
+              </Button>
+
+              <p className="text-blue-600 text-center">
                 <a
                   href="https://supabase.com/docs/guides/auth/social-login/auth-google"
                   target="_blank"
