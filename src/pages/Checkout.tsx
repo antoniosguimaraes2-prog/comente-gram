@@ -28,23 +28,27 @@ import { Link } from "react-router-dom";
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  
+  const { user } = useAuth();
+
   const planData = location.state || {
     plan: "Professional",
-    price: 79,
+    price: 97,
     billing: "monthly"
   };
 
   const [loading, setLoading] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    email: "",
+    email: user?.email || "",
     name: "",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    nameOnCard: ""
   });
+
+  // Check if this is a success page
+  const paymentId = searchParams.get('payment_id');
+  const isSuccessPage = paymentId !== null;
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
