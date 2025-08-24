@@ -101,58 +101,6 @@ const AuthPage = () => {
     }
   };
 
-  const handleTestLogin = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: "teste@teste.com",
-        password: "teste123",
-      });
-
-      if (error) {
-        // Se falhar o login, tenta criar a conta
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: "teste@teste.com",
-          password: "teste123",
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`
-          }
-        });
-
-        if (signUpError) {
-          // Se falhou, entrar em modo MVP
-          toast({
-            title: "Entrando em Modo MVP",
-            description: "Acesso liberado para testes sem configuração do Supabase.",
-          });
-          handleMVPMode();
-        } else {
-          toast({
-            title: "Conta de teste criada!",
-            description: "Fazendo login automático...",
-          });
-          // Tenta fazer login novamente
-          await supabase.auth.signInWithPassword({
-            email: "teste@teste.com",
-            password: "teste123",
-          });
-        }
-      } else {
-        toast({
-          title: "Login de teste realizado!",
-          description: "Redirecionando...",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: `${error.message}. Configure o Supabase corretamente.`,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleMVPMode = () => {
     enableMVPMode();
