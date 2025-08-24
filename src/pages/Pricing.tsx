@@ -205,6 +205,7 @@ const Pricing = () => {
 
                   <Link
                     to="/checkout"
+                    onClick={scrollToTop}
                     state={{
                       plan: plan.name,
                       price: isAnnual ? plan.priceAnnual : plan.priceMonthly,
@@ -368,6 +369,7 @@ const Pricing = () => {
             </p>
             <Link
               to="/checkout"
+              onClick={scrollToTop}
               state={{
                 plan: "Professional",
                 price: isAnnual ? 81 : 97,
