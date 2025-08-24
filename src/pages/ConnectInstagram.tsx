@@ -464,26 +464,90 @@ const ConnectInstagram = () => {
           </Card>
         </div>
 
-        {/* Debug Information (only in development) */}
-        {process.env.NODE_ENV === 'development' && (
-          <Card className="border-orange-200 bg-orange-50">
+        {/* Configuration Status */}
+        {!isInMVPMode && !account && (
+          <Card className={configStatus?.isConfigured ? "border-green-200 bg-green-50" : "border-orange-200 bg-orange-50"}>
             <CardHeader>
-              <CardTitle className="text-orange-800 text-sm">🔧 Informações de Desenvolvimento</CardTitle>
+              <CardTitle className="flex items-center space-x-2">
+                <Settings className="w-5 h-5" />
+                <span>Status da Configuração</span>
+                {isCheckingConfig ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : configStatus?.isConfigured ? (
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 text-orange-600" />
+                )}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xs space-y-2 text-orange-700">
-                <p><strong>Para configurar o OAuth do Instagram:</strong></p>
-                <ol className="list-decimal pl-4 space-y-1">
-                  <li>Crie um app no Facebook Developers (developers.facebook.com)</li>
-                  <li>Configure as variáveis de ambiente no Supabase:
-                    <ul className="list-disc pl-4 mt-1">
-                      <li><code>META_APP_ID</code> - ID do seu app Meta</li>
-                      <li><code>META_APP_SECRET</code> - Secret do seu app Meta</li>
+              {isCheckingConfig ? (
+                <p className="text-sm text-gray-600">Verificando configuração...</p>
+              ) : configStatus?.isConfigured ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-green-800 font-medium">✅ Configuração completa!</p>
+                  <p className="text-xs text-green-700">
+                    Todas as credenciais estão configuradas corretamente. Você pode conectar sua conta Instagram agora.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-orange-800 font-medium">⚠️ Configuração necessária</p>
+
+                  {configStatus?.errors && configStatus.errors.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-orange-700 font-medium">Problemas encontrados:</p>
+                      <ul className="text-xs text-orange-700 list-disc pl-4 space-y-0.5">
+                        {configStatus.errors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-orange-700 font-medium">Passos necessários:</p>
+                    <ol className="text-xs text-orange-700 list-decimal pl-4 space-y-0.5">
+                      {getConfigInstructions().map((instruction, index) => (
+                        <li key={index}>{instruction}</li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  <Alert className="border-blue-200 bg-blue-50">
+                    <Info className="h-4 w-4 text-blue-600" />
+                    <AlertDescription className="text-blue-800 text-xs">
+                      <strong>Precisa de ajuda?</strong> Consulte o arquivo <code>INSTAGRAM_SETUP.md</code>
+                      para instruções detalhadas passo-a-passo.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Debug Information (only in development) */}
+        {process.env.NODE_ENV === 'development' && account && (
+          <Card className="border-gray-200 bg-gray-50">
+            <CardHeader>
+              <CardTitle className="text-gray-800 text-sm">🔧 Informações da Conta (Debug)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs space-y-2 text-gray-700">
+                <p><strong>Validação da conta:</strong></p>
+                {(() => {
+                  const validation = validateInstagramAccount(account);
+                  return validation.isValid ? (
+                    <p className="text-green-600">✅ Conta válida e funcionando</p>
+                  ) : (
+                    <ul className="list-disc pl-4 space-y-1 text-orange-600">
+                      {validation.issues.map((issue, index) => (
+                        <li key={index}>{issue}</li>
+                      ))}
                     </ul>
-                  </li>
-                  <li>Configure o redirect URI: <code>{window.location.origin}/api/auth/instagram/callback</code></li>
-                  <li>Adicione as permissões necessárias ao app</li>
-                </ol>
+                  );
+                })()}
               </div>
             </CardContent>
           </Card>
