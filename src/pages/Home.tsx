@@ -36,13 +36,13 @@ const Home = () => {
               <span className="text-xl font-bold text-gray-900">ComenteDM</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/pricing" className="text-gray-600 hover:text-gray-900">
+              <Link to="/pricing" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Preços
               </Link>
-              <Link to="/auth" className="text-gray-600 hover:text-gray-900">
+              <Link to="/auth" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Entrar
               </Link>
-              <Link to="/auth">
+              <Link to="/auth" onClick={scrollToTop}>
                 <Button>Começar Grátis</Button>
               </Link>
             </div>
@@ -74,7 +74,7 @@ const Home = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/auth">
+                <Link to="/auth" onClick={scrollToTop}>
                   <Button size="lg" className="text-lg px-8 h-12">
                     Começar Grátis
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -383,13 +383,13 @@ const Home = () => {
               Junte-se a milhares de empresas que já automatizaram suas vendas no Instagram
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/auth">
+              <Link to="/auth" onClick={scrollToTop}>
                 <Button size="lg" variant="secondary" className="text-lg px-8 h-12">
                   Começar Grátis Agora
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
-              <Link to="/pricing">
+              <Link to="/pricing" onClick={scrollToTop}>
                 <Button size="lg" variant="outline" className="text-lg px-8 h-12 border-white text-white hover:bg-white hover:text-purple-600 bg-transparent">
                   Ver Planos
                 </Button>
