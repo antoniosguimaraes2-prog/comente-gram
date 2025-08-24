@@ -25,7 +25,7 @@ const AuthPage = () => {
             email, 
             password,
             options: {
-              emailRedirectTo: `${window.location.origin}/dashboard`
+              emailRedirectTo: `${window.location.origin}/campaigns`
             }
           })
         : await supabase.auth.signInWithPassword({ email, password });
@@ -72,7 +72,7 @@ const AuthPage = () => {
 
     } catch (error: any) {
       console.error('Google login error:', error);
-
+      
       toast({
         title: "Erro no Login com Google",
         description: error.message || "Erro no login com Google.",
@@ -81,7 +81,6 @@ const AuthPage = () => {
       setLoading(false);
     }
   };
-
 
   const handleMVPMode = () => {
     enableMVPMode();
@@ -142,195 +141,92 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Instagram className="w-10 h-10 text-purple-600 mr-3" />
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <CardTitle className="text-2xl font-bold">ComenteDM</CardTitle>
-                {!configLoading && (
-                  <Badge
-                    variant={isGoogleConfigured ? "default" : "secondary"}
-                    className={isGoogleConfigured ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
-                  >
-                    {isGoogleConfigured ? "✅ Pronto" : "⚙️ Config"}
-                  </Badge>
-                )}
-              </div>
-              <CardDescription>
-                Automação de DMs no Instagram
-              </CardDescription>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <header className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link to="/" className="flex items-center space-x-2">
+              <Instagram className="w-8 h-8 text-purple-600" />
+              <span className="text-xl font-bold text-gray-900">ComenteDM</span>
+            </Link>
+            <div className="flex items-center space-x-4">
+              <Link to="/home" className="text-gray-600 hover:text-gray-900">
+                Início
+              </Link>
+              <Link to="/pricing" className="text-gray-600 hover:text-gray-900">
+                Preços
+              </Link>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 space-y-2">
-            <Button 
-              onClick={handleMVPMode} 
-              className="w-full" 
-              variant="default"
-              disabled={loading}
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              Entrar sem login (Modo MVP)
-            </Button>
-            
-            <Button 
-              onClick={handleTestLogin} 
-              className="w-full" 
-              variant="outline"
-              disabled={loading}
-            >
-              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Login de Teste (teste@teste.com)
-            </Button>
-            
-            <Button
-              onClick={handleGoogleLogin}
-              className={`w-full border ${
-                isGoogleConfigured
-                  ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                  : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
-              variant="outline"
-              disabled={loading || configLoading || !isGoogleConfigured}
-              title={!isGoogleConfigured ? 'Google OAuth não está configurado' : ''}
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <GoogleIcon className="w-4 h-4 mr-2" />
-              )}
-              {isGoogleConfigured ? 'Continuar com Google' : 'Google (Não configurado)'}
-            </Button>
-          </div>
-          
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Ou continue com email
-              </span>
-            </div>
-          </div>
-          
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Criar Conta</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login" className="mt-6">
-              <AuthForm isSignUp={false} />
-            </TabsContent>
-            <TabsContent value="signup" className="mt-6">
-              <AuthForm isSignUp={true} />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+        </div>
+      </header>
 
-      {/* OAuth Configuration Info */}
-      <div className="mt-6 max-w-md">
-        <Alert variant={isGoogleConfigured ? "default" : "destructive"}>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="text-sm">
-            <strong>Status Google OAuth:</strong>{" "}
-            {configLoading ? (
-              "Verificando configuração..."
-            ) : isGoogleConfigured ? (
-              <span className="text-green-600">✅ Configurado</span>
-            ) : (
-              <>
-                <span className="text-red-600">❌ Não configurado</span>
-                {" - "}
-                <button
-                  onClick={() => setShowOAuthInfo(!showOAuthInfo)}
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  Ver instruções
-                </button>
-              </>
-            )}
-          </AlertDescription>
-        </Alert>
-
-        {showOAuthInfo && !isGoogleConfigured && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg text-sm space-y-3">
-            <p><strong>Configuração rápida:</strong></p>
-
-            {supabaseConfig && (
-              <div className="space-y-2">
-                <p><strong>1.</strong> Configure no Google Console:</p>
-                <div className="ml-4 bg-white p-2 rounded border">
-                  <p className="font-mono text-xs break-all">
-                    Redirect URI: {supabaseConfig.callbackUrl}
-                  </p>
-                </div>
-
-                <p><strong>2.</strong> Configure no Supabase:</p>
-                <a
-                  href={supabaseConfig.dashboardUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700"
-                >
-                  🚀 Abrir Supabase Dashboard
-                </a>
-              </div>
-            )}
-
-            <div className="border-t pt-3 space-y-2">
-              <Button
-                onClick={async () => {
-                  await refreshConfig();
-                  // Show success toast if Google is now configured
-                  if (isGoogleConfigured) {
-                    toast({
-                      title: "✅ Google OAuth Configurado!",
-                      description: "O login com Google está funcionando corretamente.",
-                    });
-                  }
-                }}
-                disabled={configLoading}
-                size="sm"
-                variant="outline"
-                className="w-full"
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center py-12 px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold">Entrar na sua conta</CardTitle>
+            <CardDescription>
+              Acesse o ComenteDM e automatize suas vendas no Instagram
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4 space-y-2">
+              <Button 
+                onClick={handleMVPMode} 
+                className="w-full" 
+                variant="default"
+                disabled={loading}
               >
-                {configLoading ? (
+                <Zap className="w-4 h-4 mr-2" />
+                Entrar sem login (Modo MVP)
+              </Button>
+              
+              <Button
+                onClick={handleGoogleLogin}
+                className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                variant="outline"
+                disabled={loading}
+              >
+                {loading ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
-                  "🔄"
+                  <GoogleIcon className="w-4 h-4 mr-2" />
                 )}
-                Verificar configuração novamente
+                Continuar com Google
               </Button>
-
-              <p className="text-blue-600 text-center">
-                <a
-                  href="https://supabase.com/docs/guides/auth/social-login/auth-google"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  📖 Documentação completa
-                </a>
-                {" | "}
-                <a
-                  href="/GOOGLE_AUTH_SETUP.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  📄 Guia detalhado
-                </a>
-              </p>
             </div>
-          </div>
-        )}
+            
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Ou continue com email
+                </span>
+              </div>
+            </div>
+            
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Entrar</TabsTrigger>
+                <TabsTrigger value="signup">Criar Conta</TabsTrigger>
+              </TabsList>
+              <TabsContent value="login" className="mt-6">
+                <AuthForm isSignUp={false} />
+              </TabsContent>
+              <TabsContent value="signup" className="mt-6">
+                <AuthForm isSignUp={true} />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
