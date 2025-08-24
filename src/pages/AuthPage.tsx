@@ -284,6 +284,45 @@ const AuthPage = () => {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* OAuth Configuration Info */}
+      <div className="mt-6 max-w-md">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-sm">
+            <strong>Configuração necessária:</strong> Para usar o login com Google, configure o OAuth no Supabase.{" "}
+            <button
+              onClick={() => setShowOAuthInfo(!showOAuthInfo)}
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              Ver instruções
+            </button>
+          </AlertDescription>
+        </Alert>
+
+        {showOAuthInfo && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg text-sm space-y-2">
+            <p><strong>1.</strong> Acesse o painel do Supabase</p>
+            <p><strong>2.</strong> Vá em Authentication → Providers</p>
+            <p><strong>3.</strong> Configure o Google OAuth com:</p>
+            <ul className="ml-4 space-y-1">
+              <li>• Client ID do Google Console</li>
+              <li>• Client Secret do Google Console</li>
+              <li>• URL de redirect autorizada</li>
+            </ul>
+            <p className="text-blue-600">
+              <a
+                href="https://supabase.com/docs/guides/auth/social-login/auth-google"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                📖 Documentação completa aqui
+              </a>
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
