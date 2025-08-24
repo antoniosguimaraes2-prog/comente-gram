@@ -54,7 +54,7 @@ export const getMVPAutomations = (): MVPAutomation[] => {
 export const addMVPAutomation = (automation: Omit<MVPAutomation, 'id' | 'createdAt'>): MVPAutomation => {
   const newAutomation: MVPAutomation = {
     ...automation,
-    id: Date.now().toString(),
+    id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     createdAt: new Date().toISOString(),
     active: automation.active ?? true,
   };
