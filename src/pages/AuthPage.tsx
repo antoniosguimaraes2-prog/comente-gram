@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -133,7 +132,7 @@ const AuthPage = () => {
       title: "Modo MVP ativado!",
       description: "Você pode criar e testar automações sem conectar Instagram.",
     });
-    navigate("/dashboard");
+    navigate("/campaigns");
   };
 
   const AuthForm = ({ isSignUp }: { isSignUp: boolean }) => {
