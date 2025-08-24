@@ -326,10 +326,10 @@ const Pricing = () => {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Existe período de teste gratuito?</h3>
+              <h3 className="text-lg font-semibold">Como funciona a garantia?</h3>
               <p className="text-gray-600">
-                Sim! Todos os planos incluem 7 dias de teste gratuito com acesso completo 
-                aos recursos. Não é necessário cartão de crédito para começar.
+                Oferecemos garantia de 7 dias para todos os planos. Se não ficar satisfeito,
+                devolvemos 100% do valor pago, sem perguntas.
               </p>
             </div>
 
