@@ -220,10 +220,15 @@ const AuthPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">ComenteDM</CardTitle>
-          <CardDescription>
-            Automação de DMs no Instagram
-          </CardDescription>
+          <div className="flex items-center justify-center mb-4">
+            <Instagram className="w-10 h-10 text-purple-600 mr-3" />
+            <div>
+              <CardTitle className="text-2xl font-bold">ComenteDM</CardTitle>
+              <CardDescription>
+                Automação de DMs no Instagram
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="mb-4 space-y-2">
