@@ -85,11 +85,6 @@ const App = () => (
                 <Billing />
               </ProtectedRoute>
             } />
-            <Route path="/checkout" element={
-              <ProtectedRoute>
-                <Checkout />
-              </ProtectedRoute>
-            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
