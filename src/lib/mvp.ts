@@ -99,6 +99,23 @@ export const getMVPInsights = () => {
   };
 };
 
+// Clean up duplicate IDs from localStorage
+export const cleanupDuplicateAutomations = (): void => {
+  const automations = getMVPAutomations();
+  const seenIds = new Set<string>();
+  const cleanedAutomations = automations.filter(automation => {
+    if (seenIds.has(automation.id)) {
+      return false; // Skip duplicate
+    }
+    seenIds.add(automation.id);
+    return true;
+  });
+
+  if (cleanedAutomations.length !== automations.length) {
+    localStorage.setItem(AUTOMATIONS_KEY, JSON.stringify(cleanedAutomations));
+  }
+};
+
 // Create example campaign for testing
 export const createExampleCampaign = (): MVPAutomation => {
   return addMVPAutomation({
