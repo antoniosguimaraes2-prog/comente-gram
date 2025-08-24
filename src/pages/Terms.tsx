@@ -5,24 +5,28 @@ import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 
 const Terms = () => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="/home" className="flex items-center space-x-2" onClick={scrollToTop}>
               <Instagram className="w-8 h-8 text-purple-600" />
               <span className="text-xl font-bold text-gray-900">ComenteDM</span>
             </Link>
             <div className="flex items-center space-x-4">
-              <Link to="/" className="text-gray-600 hover:text-gray-900">
+              <Link to="/home" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Início
               </Link>
-              <Link to="/privacy" className="text-gray-600 hover:text-gray-900">
+              <Link to="/privacy" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Privacidade
               </Link>
-              <Link to="/auth">
+              <Link to="/auth" onClick={scrollToTop}>
                 <Button>Entrar</Button>
               </Link>
             </div>
@@ -320,12 +324,12 @@ const Terms = () => {
               Ao criar sua conta, você concorda com estes termos e nossa política de privacidade.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/auth">
+              <Link to="/auth" onClick={scrollToTop}>
                 <Button>
                   Criar Conta Grátis
                 </Button>
               </Link>
-              <Link to="/privacy">
+              <Link to="/privacy" onClick={scrollToTop}>
                 <Button variant="outline">
                   Ver Política de Privacidade
                 </Button>

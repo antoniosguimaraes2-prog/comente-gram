@@ -22,33 +22,53 @@ import Footer from "@/components/Footer";
 const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(false);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const plans = [
     {
-      name: "Starter",
+      name: "Gratuito",
       description: "Perfeito para começar",
-      priceMonthly: 47,
-      priceAnnual: 39,
+      priceMonthly: 0,
+      priceAnnual: 0,
       kiwifyUrl: "https://pay.kiwify.com.br/I3yr8ml",
       features: [
         "1 conta Instagram",
         "Até 100 DMs/mês",
         "3 campanhas ativas",
         "Palavras-chave ilimitadas",
-        "Analytics básicos",
-        "Suporte por email"
+        "Analytics básicos"
       ],
       highlight: false,
-      cta: "Começar Agora"
+      cta: "Começar Grátis",
+      isFree: true
     },
     {
-      name: "Professional",
+      name: "Basic",
+      description: "Para pequenos negócios",
+      priceMonthly: 22,
+      priceAnnual: 18,
+      kiwifyUrl: "https://pay.kiwify.com.br/basic",
+      features: [
+        "1 conta Instagram",
+        "Até 1.000 DMs/mês",
+        "Campanhas ilimitadas",
+        "Palavras-chave ilimitadas",
+        "Analytics básicos"
+      ],
+      highlight: false,
+      cta: "Escolher Basic"
+    },
+    {
+      name: "Pro",
       description: "Para negócios em crescimento",
-      priceMonthly: 97,
-      priceAnnual: 81,
-      kiwifyUrl: "https://pay.kiwify.com.br/p3DiSE2",
+      priceMonthly: 45,
+      priceAnnual: 38,
+      kiwifyUrl: "https://pay.kiwify.com.br/pro",
       features: [
         "3 contas Instagram",
-        "Até 1.000 DMs/mês",
+        "Até 8.000 DMs/mês",
         "Campanhas ilimitadas",
         "Palavras-chave ilimitadas",
         "Analytics avançados",
@@ -60,11 +80,11 @@ const Pricing = () => {
       cta: "Mais Popular"
     },
     {
-      name: "Enterprise",
-      description: "Para grandes empresas",
-      priceMonthly: 197,
-      priceAnnual: 164,
-      kiwifyUrl: "https://pay.kiwify.com.br/YFtrvqI",
+      name: "Agência",
+      description: "Soluções personalizadas",
+      priceMonthly: null,
+      priceAnnual: null,
+      kiwifyUrl: null,
       features: [
         "Contas ilimitadas",
         "DMs ilimitadas",
@@ -74,10 +94,12 @@ const Pricing = () => {
         "API access",
         "Suporte dedicado",
         "Onboarding personalizado",
-        "SLA garantido"
+        "SLA garantido",
+        "Gestão de conta dedicada"
       ],
       highlight: false,
-      cta: "Falar com Vendas"
+      cta: "Falar com Time",
+      isCustom: true
     }
   ];
 
@@ -87,18 +109,18 @@ const Pricing = () => {
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="/home" className="flex items-center space-x-2" onClick={scrollToTop}>
               <Instagram className="w-8 h-8 text-purple-600" />
               <span className="text-xl font-bold text-gray-900">ComenteDM</span>
             </Link>
             <div className="flex items-center space-x-4">
-              <Link to="/" className="text-gray-600 hover:text-gray-900">
+              <Link to="/home" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Início
               </Link>
-              <Link to="/auth" className="text-gray-600 hover:text-gray-900">
+              <Link to="/auth" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Entrar
               </Link>
-              <Link to="/auth">
+              <Link to="/auth" onClick={scrollToTop}>
                 <Button>Começar Grátis</Button>
               </Link>
             </div>
@@ -151,7 +173,7 @@ const Pricing = () => {
       {/* Pricing Cards */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {plans.map((plan, index) => (
               <Card 
                 key={plan.name} 
@@ -175,16 +197,32 @@ const Pricing = () => {
                   <CardDescription className="text-base">{plan.description}</CardDescription>
                   
                   <div className="space-y-2">
-                    <div className="flex items-baseline justify-center space-x-1">
-                      <span className="text-4xl font-bold">
-                        R$ {isAnnual ? plan.priceAnnual : plan.priceMonthly}
-                      </span>
-                      <span className="text-gray-500">/mês</span>
-                    </div>
-                    {isAnnual && (
-                      <p className="text-sm text-green-600">
-                        Economize R$ {(plan.priceMonthly - plan.priceAnnual) * 12}/ano
-                      </p>
+                    {plan.isCustom ? (
+                      <div className="flex items-baseline justify-center space-x-1">
+                        <span className="text-2xl font-bold text-gray-900">
+                          Sob consulta
+                        </span>
+                      </div>
+                    ) : plan.isFree ? (
+                      <div className="flex items-baseline justify-center space-x-1">
+                        <span className="text-4xl font-bold text-green-600">
+                          Grátis
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-baseline justify-center space-x-1">
+                          <span className="text-4xl font-bold">
+                            R$ {isAnnual ? plan.priceAnnual : plan.priceMonthly}
+                          </span>
+                          <span className="text-gray-500">/mês</span>
+                        </div>
+                        {isAnnual && (
+                          <p className="text-sm text-green-600">
+                            Economize R$ {(plan.priceMonthly - plan.priceAnnual) * 12}/ano
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
                 </CardHeader>
@@ -199,28 +237,76 @@ const Pricing = () => {
                     ))}
                   </div>
 
-                  <Link
-                    to="/checkout"
-                    state={{
-                      plan: plan.name,
-                      price: isAnnual ? plan.priceAnnual : plan.priceMonthly,
-                      billing: isAnnual ? 'annual' : 'monthly'
-                    }}
-                  >
-                    <Button
-                      className={`w-full h-12 ${
-                        plan.highlight
-                          ? 'bg-purple-600 hover:bg-purple-700'
-                          : 'bg-gray-900 hover:bg-gray-800'
-                      }`}
-                    >
-                      {plan.cta}
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
+                  <div className="pt-4">
+                    {plan.isCustom ? (
+                      <Button
+                        className="w-full h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                        onClick={() => window.open('mailto:vendas@comentedm.com.br?subject=Interesse no Plano Agência', '_blank')}
+                      >
+                        {plan.cta}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    ) : plan.isFree ? (
+                      <Link to="/auth" onClick={scrollToTop}>
+                        <Button className="w-full h-12 bg-green-600 hover:bg-green-700">
+                          {plan.cta}
+                          <ArrowRight className="w-5 h-5 ml-2" />
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/checkout"
+                        onClick={scrollToTop}
+                        state={{
+                          plan: plan.name,
+                          price: isAnnual ? plan.priceAnnual : plan.priceMonthly,
+                          billing: isAnnual ? 'annual' : 'monthly'
+                        }}
+                      >
+                        <Button
+                          className={`w-full h-12 ${
+                            plan.highlight
+                              ? 'bg-purple-600 hover:bg-purple-700'
+                              : 'bg-gray-900 hover:bg-gray-800'
+                          }`}
+                        >
+                          {plan.cta}
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Basic Plan CTA */}
+      <section className="py-16 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              Comece com o plano Basic
+            </h2>
+            <p className="text-lg text-gray-600">
+              Apenas R$ 22/mês para automatizar até 1.000 DMs e crescer seu negócio
+            </p>
+            <Link
+              to="/checkout"
+              onClick={scrollToTop}
+              state={{
+                plan: "Basic",
+                price: isAnnual ? 18 : 22,
+                billing: isAnnual ? 'annual' : 'monthly'
+              }}
+            >
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 h-12">
+                Escolher Plano Basic
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -243,14 +329,16 @@ const Pricing = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Recursos</th>
-                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Starter</th>
-                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Professional</th>
-                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Enterprise</th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Gratuito</th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Basic</th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Pro</th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Agência</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   <tr>
                     <td className="px-6 py-4 text-sm text-gray-900">Contas Instagram</td>
+                    <td className="px-6 py-4 text-center text-sm">1</td>
                     <td className="px-6 py-4 text-center text-sm">1</td>
                     <td className="px-6 py-4 text-center text-sm">3</td>
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
@@ -259,11 +347,13 @@ const Pricing = () => {
                     <td className="px-6 py-4 text-sm text-gray-900">DMs por mês</td>
                     <td className="px-6 py-4 text-center text-sm">100</td>
                     <td className="px-6 py-4 text-center text-sm">1.000</td>
+                    <td className="px-6 py-4 text-center text-sm">8.000</td>
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                   </tr>
                   <tr>
                     <td className="px-6 py-4 text-sm text-gray-900">Campanhas ativas</td>
                     <td className="px-6 py-4 text-center text-sm">3</td>
+                    <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                     <td className="px-6 py-4 text-center text-sm">Ilimitadas</td>
                   </tr>
@@ -272,15 +362,18 @@ const Pricing = () => {
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
+                    <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr>
                     <td className="px-6 py-4 text-sm text-gray-900">Analytics avançados</td>
+                    <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="bg-gray-50">
                     <td className="px-6 py-4 text-sm text-gray-900">Automação com botões</td>
+                    <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
@@ -289,18 +382,67 @@ const Pricing = () => {
                     <td className="px-6 py-4 text-sm text-gray-900">API Access</td>
                     <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
+                    <td className="px-6 py-4 text-center"><span className="text-gray-400">—</span></td>
                     <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr className="bg-gray-50">
                     <td className="px-6 py-4 text-sm text-gray-900">Suporte</td>
-                    <td className="px-6 py-4 text-center text-sm">Email</td>
+                    <td className="px-6 py-4 text-center text-sm">—</td>
+                    <td className="px-6 py-4 text-center text-sm">—</td>
                     <td className="px-6 py-4 text-center text-sm">Prioritário</td>
                     <td className="px-6 py-4 text-center text-sm">Dedicado</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-900">Mensagens Extras</td>
+                    <td className="px-6 py-4 text-center text-sm font-medium text-purple-600">R$ 12/1.000</td>
+                    <td className="px-6 py-4 text-center text-sm font-medium text-purple-600">R$ 12/1.000</td>
+                    <td className="px-6 py-4 text-center text-sm font-medium text-purple-600">R$ 12/1.000</td>
+                    <td className="px-6 py-4 text-center text-sm">Sob consulta</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Another Basic Plan CTA */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Pronto para automatizar suas vendas?
+                  </h3>
+                  <p className="text-gray-600">
+                    O plano Basic oferece tudo que você precisa para começar a converter comentários em vendas
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">R$ 22/mês</div>
+                    <div className="text-sm text-gray-500">1.000 DMs mensais</div>
+                  </div>
+                  <Link
+                    to="/checkout"
+                    onClick={scrollToTop}
+                    state={{
+                      plan: "Basic",
+                      price: isAnnual ? 18 : 22,
+                      billing: isAnnual ? 'annual' : 'monthly'
+                    }}
+                  >
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      Escolher Basic Agora
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
@@ -328,8 +470,52 @@ const Pricing = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">O que acontece se eu exceder o limite de DMs?</h3>
               <p className="text-gray-600">
-                Quando você atinge 80% do limite, enviamos um aviso. Se exceder 100%, 
-                as automações são pausadas até o próximo ciclo de cobrança ou upgrade do plano.
+                Quando você atinge 80% do limite, enviamos um aviso. Se exceder 100%,
+                as automações são pausadas até o próximo ciclo de cobrança, upgrade do plano ou
+                compra de mensagens adicionais.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Como funcionam as mensagens adicionais?</h3>
+              <p className="text-gray-600">
+                Você pode comprar pacotes de 1.000 mensagens extras por R$ 12,00 sem alterar seu plano atual.
+                Essas mensagens são válidas por 30 dias e são consumidas automaticamente quando você excede
+                seu limite mensal.
+              </p>
+            </div>
+
+            {/* Inline CTA */}
+            <div className="my-12 p-6 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl border-2 border-blue-200">
+              <div className="text-center space-y-4">
+                <h4 className="text-lg font-semibold text-gray-900">
+                  Ainda tem dúvidas? Comece com o Basic!
+                </h4>
+                <p className="text-gray-600 text-sm">
+                  Teste nossa plataforma com 1.000 DMs por apenas R$ 22/mês
+                </p>
+                <Link
+                  to="/checkout"
+                  onClick={scrollToTop}
+                  state={{
+                    plan: "Basic",
+                    price: isAnnual ? 18 : 22,
+                    billing: isAnnual ? 'annual' : 'monthly'
+                  }}
+                >
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    Começar com Basic
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">O plano gratuito tem limitações?</h3>
+              <p className="text-gray-600">
+                O plano gratuito oferece até 100 DMs por mês, 1 conta Instagram e 3 campanhas ativas.
+                É perfeito para testar a plataforma e pequenos negócios que estão começando.
               </p>
             </div>
 
@@ -344,8 +530,8 @@ const Pricing = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Como funciona o suporte?</h3>
               <p className="text-gray-600">
-                Plano Starter: suporte por email (resposta em até 24h). Professional: 
-                suporte prioritário (resposta em até 4h). Enterprise: suporte dedicado com SLA.
+                Planos Gratuito e Basic: sem suporte incluso. Plano Pro:
+                suporte prioritário (resposta em até 4h). Plano Agência: suporte dedicado com SLA.
               </p>
             </div>
           </div>
@@ -364,9 +550,10 @@ const Pricing = () => {
             </p>
             <Link
               to="/checkout"
+              onClick={scrollToTop}
               state={{
-                plan: "Professional",
-                price: isAnnual ? 81 : 97,
+                plan: "Pro",
+                price: isAnnual ? 38 : 45,
                 billing: isAnnual ? 'annual' : 'monthly'
               }}
             >

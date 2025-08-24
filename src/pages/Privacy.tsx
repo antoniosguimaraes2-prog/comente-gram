@@ -5,24 +5,28 @@ import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 
 const Privacy = () => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="/home" className="flex items-center space-x-2" onClick={scrollToTop}>
               <Instagram className="w-8 h-8 text-purple-600" />
               <span className="text-xl font-bold text-gray-900">ComenteDM</span>
             </Link>
             <div className="flex items-center space-x-4">
-              <Link to="/" className="text-gray-600 hover:text-gray-900">
+              <Link to="/home" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Início
               </Link>
-              <Link to="/terms" className="text-gray-600 hover:text-gray-900">
+              <Link to="/terms" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Termos
               </Link>
-              <Link to="/auth">
+              <Link to="/auth" onClick={scrollToTop}>
                 <Button>Entrar</Button>
               </Link>
             </div>
@@ -264,7 +268,7 @@ const Privacy = () => {
               <Button variant="outline">
                 Entrar em Contato
               </Button>
-              <Link to="/terms">
+              <Link to="/terms" onClick={scrollToTop}>
                 <Button variant="outline">
                   Ver Termos de Uso
                 </Button>

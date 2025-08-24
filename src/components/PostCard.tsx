@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +21,10 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post }: PostCardProps) => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "Data não disponível";
     return new Date(dateString).toLocaleDateString("pt-BR");
@@ -92,7 +95,7 @@ const PostCard = ({ post }: PostCardProps) => {
       </CardContent>
       
       <CardFooter className="p-4 pt-0">
-        <Link to={`/posts/${post.media_id}`} className="w-full">
+        <Link to={`/posts/${post.media_id}`} className="w-full" onClick={scrollToTop}>
           <Button className="w-full">Ver Detalhes</Button>
         </Link>
       </CardFooter>

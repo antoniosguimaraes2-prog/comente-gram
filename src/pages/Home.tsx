@@ -21,6 +21,10 @@ import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 
 const Home = () => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -32,13 +36,13 @@ const Home = () => {
               <span className="text-xl font-bold text-gray-900">ComenteDM</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/pricing" className="text-gray-600 hover:text-gray-900">
+              <Link to="/pricing" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Preços
               </Link>
-              <Link to="/auth" className="text-gray-600 hover:text-gray-900">
+              <Link to="/auth" className="text-gray-600 hover:text-gray-900" onClick={scrollToTop}>
                 Entrar
               </Link>
-              <Link to="/auth">
+              <Link to="/auth" onClick={scrollToTop}>
                 <Button>Começar Grátis</Button>
               </Link>
             </div>
@@ -70,15 +74,23 @@ const Home = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/auth">
+                <Link to="/auth" onClick={scrollToTop}>
                   <Button size="lg" className="text-lg px-8 h-12">
                     Começar Grátis
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="text-lg px-8 h-12">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="text-lg px-8 h-12"
+                  onClick={() => {
+                    localStorage.setItem('comente_dm_mvp_mode', 'true');
+                    window.location.href = '/';
+                  }}
+                >
                   <Play className="w-5 h-5 mr-2" />
-                  Ver Demo
+                  Usar sem Login
                 </Button>
               </div>
 
@@ -110,10 +122,12 @@ const Home = () => {
                         <p className="text-xs text-gray-500">há 2 horas</p>
                       </div>
                     </div>
-                    
-                    <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg h-32 flex items-center justify-center">
-                      <Instagram className="w-12 h-12 text-gray-400" />
-                    </div>
+
+                    <img
+                      src="https://images.pexels.com/photos/3781528/pexels-photo-3781528.jpeg"
+                      alt="Mulher usando tablet profissionalmente"
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
 
                     <div className="space-y-2">
                       <p className="text-sm"><strong>sua_empresa</strong> Novo produto chegando! 🚀</p>
@@ -221,6 +235,9 @@ const Home = () => {
               O que nossos clientes dizem
             </h2>
             <p className="text-xl text-gray-600">
+              Já são mais de 2000 clientes automatizando o DM rapidamente
+            </p>
+            <p className="text-lg text-gray-500">
               Resultados reais de empresas que automatizaram suas vendas
             </p>
           </div>
@@ -298,36 +315,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Companies Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16">
-            <p className="text-lg text-gray-600">Confiado por mais de 500+ empresas</p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center opacity-60">
-            {/* Company Logos Placeholder */}
-            <div className="h-12 bg-gray-200 rounded flex items-center justify-center">
-              <span className="text-gray-400 font-semibold">EMPRESA A</span>
-            </div>
-            <div className="h-12 bg-gray-200 rounded flex items-center justify-center">
-              <span className="text-gray-400 font-semibold">EMPRESA B</span>
-            </div>
-            <div className="h-12 bg-gray-200 rounded flex items-center justify-center">
-              <span className="text-gray-400 font-semibold">EMPRESA C</span>
-            </div>
-            <div className="h-12 bg-gray-200 rounded flex items-center justify-center">
-              <span className="text-gray-400 font-semibold">EMPRESA D</span>
-            </div>
-            <div className="h-12 bg-gray-200 rounded flex items-center justify-center">
-              <span className="text-gray-400 font-semibold">EMPRESA E</span>
-            </div>
-            <div className="h-12 bg-gray-200 rounded flex items-center justify-center">
-              <span className="text-gray-400 font-semibold">EMPRESA F</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Benefits Section */}
       <section className="bg-gray-900 text-white py-20">
@@ -396,14 +383,14 @@ const Home = () => {
               Junte-se a milhares de empresas que já automatizaram suas vendas no Instagram
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/auth">
+              <Link to="/auth" onClick={scrollToTop}>
                 <Button size="lg" variant="secondary" className="text-lg px-8 h-12">
                   Começar Grátis Agora
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
-              <Link to="/pricing">
-                <Button size="lg" variant="outline" className="text-lg px-8 h-12 border-white text-white hover:bg-white hover:text-purple-600">
+              <Link to="/pricing" onClick={scrollToTop}>
+                <Button size="lg" variant="outline" className="text-lg px-8 h-12 border-white text-white hover:bg-white hover:text-purple-600 bg-transparent">
                   Ver Planos
                 </Button>
               </Link>

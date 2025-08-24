@@ -15,6 +15,10 @@ const Layout = ({ children }: LayoutProps) => {
   const { user, isInMVPMode } = useAuth();
   const location = useLocation();
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleLogout = async () => {
     if (isInMVPMode) {
       disableMVPMode();
@@ -37,7 +41,7 @@ const Layout = ({ children }: LayoutProps) => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-3">
-                <Link to="/campaigns" className="text-xl font-bold text-blue-600">
+                <Link to="/campaigns" className="text-xl font-bold text-blue-600" onClick={scrollToTop}>
                   ComenteDM
                 </Link>
                 {isInMVPMode && (
@@ -54,6 +58,7 @@ const Layout = ({ children }: LayoutProps) => {
                     <Link
                       key={item.path}
                       to={item.path}
+                      onClick={scrollToTop}
                       className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                         location.pathname === item.path
                           ? "bg-blue-100 text-blue-700"
