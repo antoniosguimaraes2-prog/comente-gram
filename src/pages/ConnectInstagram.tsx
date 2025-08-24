@@ -177,7 +177,7 @@ const ConnectInstagram = () => {
                 <Info className="h-4 w-4" />
                 <AlertDescription>
                   No modo MVP, você pode criar e testar campanhas sem conectar uma conta real do Instagram. 
-                  Os dados s��o salvos localmente no seu navegador.
+                  Os dados são salvos localmente no seu navegador.
                 </AlertDescription>
               </Alert>
 
@@ -312,8 +312,18 @@ const ConnectInstagram = () => {
                         <li>Conta Instagram Business (não pessoal)</li>
                         <li>Página do Facebook vinculada ao Instagram</li>
                         <li>Você deve ser administrador da Página</li>
-                        <li>App Meta configurado com credenciais válidas</li>
+                        <li>App Meta criado no developers.facebook.com</li>
+                        <li>Credenciais META_APP_ID e META_APP_SECRET configuradas</li>
                       </ul>
+                    </AlertDescription>
+                  </Alert>
+
+                  <Alert className="border-blue-200 bg-blue-50">
+                    <Info className="h-4 w-4 text-blue-600" />
+                    <AlertDescription className="text-blue-800">
+                      <strong>Primeira vez configurando?</strong><br/>
+                      Consulte o arquivo <code>INSTAGRAM_SETUP.md</code> na raiz do projeto para
+                      um guia completo passo-a-passo de configuração.
                     </AlertDescription>
                   </Alert>
 
