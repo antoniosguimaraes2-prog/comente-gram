@@ -92,7 +92,6 @@ const CampaignDetails = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('CampaignDetails mounted with campaignId:', campaignId);
     if (!campaignId) return;
 
     const campaigns = getMVPAutomations();
