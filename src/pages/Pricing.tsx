@@ -63,12 +63,12 @@ const Pricing = () => {
     {
       name: "Pro",
       description: "Para negócios em crescimento",
-      priceMonthly: 67,
-      priceAnnual: 56,
+      priceMonthly: 45,
+      priceAnnual: 38,
       kiwifyUrl: "https://pay.kiwify.com.br/pro",
       features: [
         "3 contas Instagram",
-        "Até 5.000 DMs/mês",
+        "Até 8.000 DMs/mês",
         "Campanhas ilimitadas",
         "Palavras-chave ilimitadas",
         "Analytics avançados",
