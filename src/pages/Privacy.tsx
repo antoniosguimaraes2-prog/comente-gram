@@ -268,7 +268,7 @@ const Privacy = () => {
               <Button variant="outline">
                 Entrar em Contato
               </Button>
-              <Link to="/terms">
+              <Link to="/terms" onClick={scrollToTop}>
                 <Button variant="outline">
                   Ver Termos de Uso
                 </Button>
