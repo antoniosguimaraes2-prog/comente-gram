@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { name, accountId, postUrl, keywords, dmTemplate, listenAllComments, messageType } = await req.json()
+    const { name, accountId, postUrl, keywords, dmTemplate, listenAllComments, messageType, linkUrl, buttons } = await req.json()
 
     if (!name || !postUrl || !dmTemplate) {
       throw new Error('Missing required fields')
