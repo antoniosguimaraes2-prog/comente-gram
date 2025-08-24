@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -13,10 +12,14 @@ serve(async (req) => {
   }
 
   try {
-    const { name, accountId, postUrl, keywords, dmTemplate } = await req.json()
-    
-    if (!name || !postUrl || !keywords || !dmTemplate) {
+    const { name, accountId, postUrl, keywords, dmTemplate, listenAllComments, messageType, linkUrl, buttons } = await req.json()
+
+    if (!name || !postUrl || !dmTemplate) {
       throw new Error('Missing required fields')
+    }
+
+    if (!listenAllComments && (!keywords || keywords.length === 0)) {
+      throw new Error('Keywords required when not listening to all comments')
     }
 
     // Get auth header to identify user
@@ -98,6 +101,10 @@ serve(async (req) => {
         posted_at: postData.timestamp || null,
         active_bool: true,
         dm_template: dmTemplate,
+        listen_all_comments: listenAllComments || false,
+        message_type: messageType || 'simple',
+        link_url: linkUrl || null,
+        buttons: buttons ? JSON.stringify(buttons) : null,
       })
       .select()
       .single()
@@ -112,19 +119,21 @@ serve(async (req) => {
       .delete()
       .eq('post_id', post.id)
 
-    // Insert new keywords
-    const keywordInserts = keywords.map((word: string) => ({
-      post_id: post.id,
-      word: word.toLowerCase().trim(),
-      active_bool: true,
-    }))
+    // Insert keywords only if not listening to all comments
+    if (!listenAllComments && keywords && keywords.length > 0) {
+      const keywordInserts = keywords.map((word: string) => ({
+        post_id: post.id,
+        word: word.toLowerCase().trim(),
+        active_bool: true,
+      }))
 
-    const { error: keywordsError } = await supabase
-      .from('keywords')
-      .insert(keywordInserts)
+      const { error: keywordsError } = await supabase
+        .from('keywords')
+        .insert(keywordInserts)
 
-    if (keywordsError) {
-      throw new Error(`Failed to save keywords: ${keywordsError.message}`)
+      if (keywordsError) {
+        throw new Error(`Failed to save keywords: ${keywordsError.message}`)
+      }
     }
 
     return new Response(

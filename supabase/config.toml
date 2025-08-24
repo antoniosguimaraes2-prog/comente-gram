@@ -1,1 +1,17 @@
 project_id = "htwwbtqsdhibxkrdfvsm"
+
+[functions.kiwify-checkout]
+env = [
+  "KIWIFY_API_TOKEN",
+  "KIWIFY_WEBHOOK_SECRET",
+  "SUPABASE_URL",
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY"
+]
+
+[functions.kiwify-webhook]
+env = [
+  "KIWIFY_WEBHOOK_SECRET",
+  "SUPABASE_URL",
+  "SUPABASE_SERVICE_ROLE_KEY"
+]

@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,22 +31,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Define public routes that don't require authentication
+  const publicRoutes = ['/auth', '/home', '/pricing', '/privacy', '/terms', '/checkout'];
+
   useEffect(() => {
     // Check MVP mode first
     const mvpMode = isMVPMode();
     setIsInMVPMode(mvpMode);
-    
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
-      
+
       // Redirect logic - MVP mode bypasses auth requirements
       if (mvpMode && location.pathname === "/auth") {
-        navigate("/dashboard");
+        navigate("/campaigns");
       } else if (session?.user && location.pathname === "/auth") {
-        navigate("/dashboard");
-      } else if (!session?.user && !mvpMode && location.pathname !== "/auth") {
+        navigate("/campaigns");
+      } else if (!session?.user && !mvpMode && !publicRoutes.includes(location.pathname)) {
         navigate("/auth");
       }
     });
@@ -58,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (event === "SIGNED_IN" && session?.user) {
-          navigate("/dashboard");
+          navigate("/campaigns");
         } else if (event === "SIGNED_OUT") {
           navigate("/auth");
         }

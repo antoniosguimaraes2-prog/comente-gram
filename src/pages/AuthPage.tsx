@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,9 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Zap } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Loader2, Zap, Instagram } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { enableMVPMode } from "@/lib/mvp";
+import GoogleIcon from "@/components/GoogleIcon";
+import Footer from "@/components/Footer";
 
 const AuthPage = () => {
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ const AuthPage = () => {
             email, 
             password,
             options: {
-              emailRedirectTo: `${window.location.origin}/dashboard`
+              emailRedirectTo: `${window.location.origin}/campaigns`
             }
           })
         : await supabase.auth.signInWithPassword({ email, password });
@@ -59,70 +60,24 @@ const AuthPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/campaigns`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
 
       if (error) throw error;
+
     } catch (error: any) {
+      console.error('Google login error:', error);
+      
       toast({
-        title: "Erro",
+        title: "Erro no Login com Google",
         description: error.message || "Erro no login com Google.",
         variant: "destructive",
       });
-      setLoading(false);
-    }
-  };
-
-  const handleTestLogin = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: "teste@teste.com",
-        password: "teste123",
-      });
-
-      if (error) {
-        // Se falhar o login, tenta criar a conta
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: "teste@teste.com",
-          password: "teste123",
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`
-          }
-        });
-
-        if (signUpError) {
-          // Se falhou, entrar em modo MVP
-          toast({
-            title: "Entrando em Modo MVP",
-            description: "Acesso liberado para testes sem configuração do Supabase.",
-          });
-          handleMVPMode();
-        } else {
-          toast({
-            title: "Conta de teste criada!",
-            description: "Fazendo login automático...",
-          });
-          // Tenta fazer login novamente
-          await supabase.auth.signInWithPassword({
-            email: "teste@teste.com",
-            password: "teste123",
-          });
-        }
-      } else {
-        toast({
-          title: "Login de teste realizado!",
-          description: "Redirecionando...",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: `${error.message}. Configure o Supabase corretamente.`,
-        variant: "destructive",
-      });
-    } finally {
       setLoading(false);
     }
   };
@@ -133,7 +88,7 @@ const AuthPage = () => {
       title: "Modo MVP ativado!",
       description: "Você pode criar e testar automações sem conectar Instagram.",
     });
-    navigate("/dashboard");
+    navigate("/campaigns");
   };
 
   const AuthForm = ({ isSignUp }: { isSignUp: boolean }) => {
@@ -186,72 +141,92 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">ComenteDM</CardTitle>
-          <CardDescription>
-            Automação de DMs no Instagram
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 space-y-2">
-            <Button 
-              onClick={handleMVPMode} 
-              className="w-full" 
-              variant="default"
-              disabled={loading}
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              Entrar sem login (Modo MVP)
-            </Button>
-            
-            <Button 
-              onClick={handleTestLogin} 
-              className="w-full" 
-              variant="outline"
-              disabled={loading}
-            >
-              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Login de Teste (teste@teste.com)
-            </Button>
-            
-            <Button 
-              onClick={handleGoogleLogin} 
-              className="w-full" 
-              variant="secondary"
-              disabled={loading}
-            >
-              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Continuar com Google
-            </Button>
-          </div>
-          
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Ou continue com email
-              </span>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <header className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link to="/home" className="flex items-center space-x-2">
+              <Instagram className="w-8 h-8 text-purple-600" />
+              <span className="text-xl font-bold text-gray-900">ComenteDM</span>
+            </Link>
+            <div className="flex items-center space-x-4">
+              <Link to="/home" className="text-gray-600 hover:text-gray-900">
+                Início
+              </Link>
+              <Link to="/pricing" className="text-gray-600 hover:text-gray-900">
+                Preços
+              </Link>
             </div>
           </div>
-          
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Criar Conta</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login" className="mt-6">
-              <AuthForm isSignUp={false} />
-            </TabsContent>
-            <TabsContent value="signup" className="mt-6">
-              <AuthForm isSignUp={true} />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center py-12 px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold">Entrar na sua conta</CardTitle>
+            <CardDescription>
+              Acesse o ComenteDM e automatize suas vendas no Instagram
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4 space-y-2">
+              <Button 
+                onClick={handleMVPMode} 
+                className="w-full" 
+                variant="default"
+                disabled={loading}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Entrar sem login (Modo MVP)
+              </Button>
+              
+              <Button
+                onClick={handleGoogleLogin}
+                className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                variant="outline"
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <GoogleIcon className="w-4 h-4 mr-2" />
+                )}
+                Continuar com Google
+              </Button>
+            </div>
+            
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Ou continue com email
+                </span>
+              </div>
+            </div>
+            
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Entrar</TabsTrigger>
+                <TabsTrigger value="signup">Criar Conta</TabsTrigger>
+              </TabsList>
+              <TabsContent value="login" className="mt-6">
+                <AuthForm isSignUp={false} />
+              </TabsContent>
+              <TabsContent value="signup" className="mt-6">
+                <AuthForm isSignUp={true} />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

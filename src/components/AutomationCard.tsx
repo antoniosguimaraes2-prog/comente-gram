@@ -1,8 +1,7 @@
-
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Calendar, MessageCircle, Send, TrendingUp, Zap, Instagram } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -28,6 +27,7 @@ interface AutomationCardProps {
 
 const AutomationCard = ({ automation }: AutomationCardProps) => {
   const { isInMVPMode } = useAuth();
+  const navigate = useNavigate();
 
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "Data não disponível";
@@ -44,6 +44,11 @@ const AutomationCard = ({ automation }: AutomationCardProps) => {
   const displayAccount = isInMVPMode ? automation.accountName : "Conta conectada";
   const displayKeywords = automation.keywords?.join(", ") || "Nenhuma palavra-chave";
   const displayMessage = truncateText(automation.dmTemplate || automation.caption);
+
+  const handleViewAnalytics = () => {
+    const url = isInMVPMode ? `/automations/${automation.id}` : `/posts/${automation.media_id}`;
+    navigate(url);
+  };
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -117,9 +122,9 @@ const AutomationCard = ({ automation }: AutomationCardProps) => {
       </CardContent>
       
       <CardFooter className="p-4 pt-0">
-        <Link to={isInMVPMode ? `/automations/${automation.id}` : `/posts/${automation.media_id}`} className="w-full">
-          <Button className="w-full">Ver Analytics</Button>
-        </Link>
+        <Button className="w-full" onClick={handleViewAnalytics}>
+          Ver Analytics
+        </Button>
       </CardFooter>
     </Card>
   );

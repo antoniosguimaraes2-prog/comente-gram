@@ -1,11 +1,11 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useLocation } from "react-router-dom";
-import { LogOut, Instagram, BarChart3, Plus, Zap } from "lucide-react";
+import { LogOut, Instagram, BarChart3, Plus, Zap, Target } from "lucide-react";
 import { disableMVPMode } from "@/lib/mvp";
+import Footer from "./Footer";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -25,19 +25,19 @@ const Layout = ({ children }: LayoutProps) => {
   };
 
   const navItems = [
-    { path: "/dashboard", label: "Dashboard", icon: BarChart3 },
+    { path: "/campaigns", label: "Campanhas", icon: Target },
     { path: "/new", label: "Nova Campanha", icon: Plus },
     { path: "/connect-instagram", label: "Conectar Instagram", icon: Instagram },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-3">
-                <Link to="/dashboard" className="text-xl font-bold text-blue-600">
+                <Link to="/campaigns" className="text-xl font-bold text-blue-600">
                   ComenteDM
                 </Link>
                 {isInMVPMode && (
@@ -84,9 +84,10 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
         </div>
       </header>
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
         {children}
       </main>
+      <Footer />
     </div>
   );
 };
