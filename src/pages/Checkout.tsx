@@ -277,61 +277,33 @@ const Checkout = () => {
               </CardContent>
             </Card>
 
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <CreditCard className="w-5 h-5" />
-                  <span>Informações de Pagamento</span>
+                  <Shield className="w-5 h-5" />
+                  <span>Checkout Seguro</span>
                 </CardTitle>
                 <CardDescription>
-                  Seus dados estão protegidos com criptografia SSL
+                  Após confirmar, você será redirecionado para o pagamento seguro via Kiwify
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nameOnCard">Nome no Cartão</Label>
-                  <Input
-                    id="nameOnCard"
-                    value={formData.nameOnCard}
-                    onChange={(e) => handleInputChange('nameOnCard', e.target.value)}
-                    placeholder="Nome conforme no cartão"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cardNumber">Número do Cartão</Label>
-                  <Input
-                    id="cardNumber"
-                    value={formatCardNumber(formData.cardNumber)}
-                    onChange={(e) => handleInputChange('cardNumber', e.target.value)}
-                    placeholder="1234 5678 9012 3456"
-                    maxLength={19}
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="expiryDate">Validade</Label>
-                    <Input
-                      id="expiryDate"
-                      value={formatExpiryDate(formData.expiryDate)}
-                      onChange={(e) => handleInputChange('expiryDate', e.target.value)}
-                      placeholder="MM/AA"
-                      maxLength={5}
-                      required
-                    />
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Shield className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">Pagamento 100% Seguro</span>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cvv">CVV</Label>
-                    <Input
-                      id="cvv"
-                      value={formData.cvv}
-                      onChange={(e) => handleInputChange('cvv', e.target.value.replace(/\D/g, ''))}
-                      placeholder="123"
-                      maxLength={4}
-                      required
-                    />
-                  </div>
+                  <p className="text-xs text-blue-700">
+                    Processamento seguro via Kiwify. Aceitamos todas as principais bandeiras de cartão,
+                    PIX e boleto bancário.
+                  </p>
                 </div>
               </CardContent>
             </Card>
