@@ -101,6 +101,7 @@ serve(async (req) => {
         posted_at: postData.timestamp || null,
         active_bool: true,
         dm_template: dmTemplate,
+        listen_all_comments: listenAllComments || false,
       })
       .select()
       .single()
