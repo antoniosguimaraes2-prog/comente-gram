@@ -164,7 +164,9 @@ const NewCampaign = () => {
             keywords: finalData.keywords,
             dmTemplate: finalData.messageContent,
             listenAllComments: finalData.listenAllComments,
-            messageType: finalData.messageType
+            messageType: finalData.messageType,
+            linkUrl: finalData.linkUrl,
+            buttons: finalData.buttons
           },
         })
       );
