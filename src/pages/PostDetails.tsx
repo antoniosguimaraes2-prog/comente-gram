@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -200,7 +199,7 @@ const PostDetails = () => {
   }
 
   if (error || !post) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/campaigns" replace />;
   }
 
   // Calculate stats
