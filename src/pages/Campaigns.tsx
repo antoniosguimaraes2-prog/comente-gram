@@ -87,7 +87,15 @@ const Campaigns = () => {
     queryKey: ["campaigns", searchTerm, statusFilter, dateFilter],
     queryFn: async () => {
       if (isInMVPMode) {
-        let mvpCampaigns = getMVPAutomations().map(automation => ({
+        let automations = getMVPAutomations();
+
+        // Se não há campanhas MVP, criar uma de exemplo
+        if (automations.length === 0) {
+          createExampleCampaign();
+          automations = getMVPAutomations();
+        }
+
+        let mvpCampaigns = automations.map(automation => ({
           id: automation.id,
           name: automation.name,
           caption: automation.name,
