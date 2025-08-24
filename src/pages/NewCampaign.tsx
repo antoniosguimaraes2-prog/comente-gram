@@ -76,7 +76,9 @@ const NewCampaign = () => {
     keywords: [],
     listenAllComments: false,
     messageType: 'simple',
-    messageContent: ''
+    messageContent: '',
+    linkUrl: '',
+    buttons: []
   });
   const [keywordInput, setKeywordInput] = useState('');
   const [showPostGallery, setShowPostGallery] = useState(false);
