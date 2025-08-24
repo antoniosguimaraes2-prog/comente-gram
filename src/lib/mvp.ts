@@ -59,8 +59,31 @@ export const addMVPAutomation = (automation: Omit<MVPAutomation, 'id' | 'created
   const automations = getMVPAutomations();
   automations.push(newAutomation);
   localStorage.setItem(AUTOMATIONS_KEY, JSON.stringify(automations));
-  
+
   return newAutomation;
+};
+
+export const updateMVPAutomation = (id: string, updates: Partial<MVPAutomation>): boolean => {
+  const automations = getMVPAutomations();
+  const index = automations.findIndex(automation => automation.id === id);
+
+  if (index === -1) return false;
+
+  automations[index] = { ...automations[index], ...updates };
+  localStorage.setItem(AUTOMATIONS_KEY, JSON.stringify(automations));
+
+  return true;
+};
+
+export const deleteMVPAutomation = (id: string): boolean => {
+  const automations = getMVPAutomations();
+  const filteredAutomations = automations.filter(automation => automation.id !== id);
+
+  if (filteredAutomations.length === automations.length) return false;
+
+  localStorage.setItem(AUTOMATIONS_KEY, JSON.stringify(filteredAutomations));
+
+  return true;
 };
 
 // Mock data for MVP insights
