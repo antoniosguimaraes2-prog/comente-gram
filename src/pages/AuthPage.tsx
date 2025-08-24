@@ -243,13 +243,17 @@ const AuthPage = () => {
               Login de Teste (teste@teste.com)
             </Button>
             
-            <Button 
-              onClick={handleGoogleLogin} 
-              className="w-full" 
-              variant="secondary"
+            <Button
+              onClick={handleGoogleLogin}
+              className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+              variant="outline"
               disabled={loading}
             >
-              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {loading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <GoogleIcon className="w-4 h-4 mr-2" />
+              )}
               Continuar com Google
             </Button>
           </div>
