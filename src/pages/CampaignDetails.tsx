@@ -260,8 +260,6 @@ const CampaignDetails = () => {
     );
   }
 
-  console.log('Renderizando página de detalhes para campanha:', campaign.name);
-
   return (
     <Layout>
       <div className="max-w-6xl mx-auto space-y-6">
