@@ -7,9 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft,
@@ -34,7 +37,10 @@ import {
   Target,
   AlertTriangle,
   LinkIcon,
-  MousePointer
+  MousePointer,
+  ExternalLink,
+  Check,
+  Clock
 } from "lucide-react";
 import { getMVPAutomations, updateMVPAutomation, deleteMVPAutomation, type MVPAutomation } from "@/lib/mvp";
 import { useAuth } from "@/providers/AuthProvider";
@@ -45,6 +51,73 @@ interface Button {
   responseMessage: string;
 }
 
+interface CommentInteraction {
+  id: string;
+  username: string;
+  fullName: string;
+  profileUrl: string;
+  avatarUrl: string;
+  comment: string;
+  keyword: string;
+  commentDate: string;
+  dmSent: boolean;
+  dmStatus: 'enviado' | 'entregue' | 'lido' | 'erro';
+  postUrl: string;
+}
+
+// Gerar dados simulados de comentários
+const generateCommentInteractions = (campaign: MVPAutomation): CommentInteraction[] => {
+  const users = [
+    { username: 'joao_silva', fullName: 'João Silva' },
+    { username: 'maria_santos', fullName: 'Maria Santos' },
+    { username: 'pedro_costa', fullName: 'Pedro Costa' },
+    { username: 'ana_oliveira', fullName: 'Ana Oliveira' },
+    { username: 'carlos_lima', fullName: 'Carlos Lima' },
+    { username: 'lucia_ferreira', fullName: 'Lúcia Ferreira' },
+    { username: 'bruno_alves', fullName: 'Bruno Alves' },
+    { username: 'camila_rocha', fullName: 'Camila Rocha' },
+    { username: 'rafael_mendes', fullName: 'Rafael Mendes' },
+    { username: 'julia_castro', fullName: 'Júlia Castro' }
+  ];
+
+  const comments = [
+    'Estou interessado neste produto!',
+    'Qual o preço?',
+    'Me manda mais informações por favor',
+    'Quero comprar',
+    'Tenho uma dúvida sobre isso',
+    'Aceita cartão?',
+    'Entrega para todo Brasil?',
+    'Tem desconto?',
+    'Como faço para adquirir?',
+    'Disponível em outras cores?'
+  ];
+
+  const statuses: CommentInteraction['dmStatus'][] = ['enviado', 'entregue', 'lido', 'erro'];
+
+  return Array.from({ length: 15 }, (_, i) => {
+    const user = users[Math.floor(Math.random() * users.length)];
+    const comment = comments[Math.floor(Math.random() * comments.length)];
+    const keyword = campaign.listenAllComments 
+      ? 'todos' 
+      : campaign.keywords[Math.floor(Math.random() * campaign.keywords.length)] || 'interessado';
+    
+    return {
+      id: `comment_${i}`,
+      username: user.username,
+      fullName: user.fullName,
+      profileUrl: `https://instagram.com/${user.username}`,
+      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`,
+      comment,
+      keyword,
+      commentDate: new Date(Date.now() - Math.random() * 86400000 * 7).toISOString(),
+      dmSent: Math.random() > 0.2, // 80% chance de DM enviado
+      dmStatus: statuses[Math.floor(Math.random() * statuses.length)],
+      postUrl: campaign.postUrl
+    };
+  }).sort((a, b) => new Date(b.commentDate).getTime() - new Date(a.commentDate).getTime());
+};
+
 const CampaignDetails = () => {
   const { campaignId } = useParams<{ campaignId: string }>();
   const { isInMVPMode } = useAuth();
@@ -53,6 +126,7 @@ const CampaignDetails = () => {
   const queryClient = useQueryClient();
 
   const [campaign, setCampaign] = useState<MVPAutomation | null>(null);
+  const [commentInteractions, setCommentInteractions] = useState<CommentInteraction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -61,6 +135,9 @@ const CampaignDetails = () => {
   // Edit values
   const [editValues, setEditValues] = useState({
     name: '',
+    keywords: [] as string[],
+    newKeyword: '',
+    listenAllComments: false,
     messageType: 'simple' as 'simple' | 'link' | 'button',
     messageContent: '',
     linkUrl: '',
@@ -82,11 +159,15 @@ const CampaignDetails = () => {
         setCampaign(foundCampaign);
         setEditValues({
           name: foundCampaign.name,
+          keywords: [...foundCampaign.keywords],
+          newKeyword: '',
+          listenAllComments: foundCampaign.listenAllComments || false,
           messageType: foundCampaign.messageType || 'simple',
           messageContent: foundCampaign.dmTemplate,
           linkUrl: foundCampaign.linkUrl || '',
           buttons: foundCampaign.buttons ? [...foundCampaign.buttons] : []
         });
+        setCommentInteractions(generateCommentInteractions(foundCampaign));
         setError(null);
       } else {
         setError('Campanha não encontrada');
@@ -116,6 +197,10 @@ const CampaignDetails = () => {
       if (campaign) {
         const updatedCampaign = { ...campaign, ...updates };
         setCampaign(updatedCampaign);
+        // Atualizar dados de comentários se mudaram as palavras-chave
+        if (updates.keywords || updates.listenAllComments !== undefined) {
+          setCommentInteractions(generateCommentInteractions(updatedCampaign));
+        }
       }
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       queryClient.invalidateQueries({ queryKey: ["automations"] });
@@ -176,6 +261,10 @@ const CampaignDetails = () => {
           updates.name = editValues.name.trim();
         }
         break;
+      case 'keywords':
+        updates.keywords = editValues.keywords;
+        updates.listenAllComments = editValues.listenAllComments;
+        break;
       case 'message':
         updates.dmTemplate = editValues.messageContent;
         updates.messageType = editValues.messageType;
@@ -196,6 +285,24 @@ const CampaignDetails = () => {
 
   const handleDeleteCampaign = () => {
     deleteCampaignMutation.mutate();
+  };
+
+  const handleAddKeyword = () => {
+    const keyword = editValues.newKeyword.trim().toLowerCase();
+    if (keyword && !editValues.keywords.includes(keyword)) {
+      setEditValues(prev => ({
+        ...prev,
+        keywords: [...prev.keywords, keyword],
+        newKeyword: ''
+      }));
+    }
+  };
+
+  const handleRemoveKeyword = (keyword: string) => {
+    setEditValues(prev => ({
+      ...prev,
+      keywords: prev.keywords.filter(k => k !== keyword)
+    }));
   };
 
   const handleAddButton = () => {
@@ -221,6 +328,34 @@ const CampaignDetails = () => {
       ...prev,
       buttons: prev.buttons.filter((_, i) => i !== index)
     }));
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("pt-BR", {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getStatusBadge = (status: CommentInteraction['dmStatus']) => {
+    const variants = {
+      enviado: { color: "bg-blue-100 text-blue-800", icon: Send },
+      entregue: { color: "bg-green-100 text-green-800", icon: Check },
+      lido: { color: "bg-purple-100 text-purple-800", icon: Eye },
+      erro: { color: "bg-red-100 text-red-800", icon: AlertTriangle }
+    };
+
+    const config = variants[status];
+    const Icon = config.icon;
+    
+    return (
+      <Badge className={`${config.color} border-0`}>
+        <Icon className="w-3 h-3 mr-1" />
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
   };
 
   // Loading state
@@ -259,6 +394,11 @@ const CampaignDetails = () => {
       </Layout>
     );
   }
+
+  // Calculate metrics
+  const totalComments = commentInteractions.length;
+  const totalDMsSent = commentInteractions.filter(c => c.dmSent).length;
+  const successRate = totalComments > 0 ? ((totalDMsSent / totalComments) * 100).toFixed(1) : "0";
 
   return (
     <Layout>
@@ -367,6 +507,23 @@ const CampaignDetails = () => {
                           <Activity className="w-3 h-3 mr-1" />
                           {campaign.active ? "Ativa" : "Pausada"}
                         </Badge>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Tipo de Monitoramento</Label>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {campaign.listenAllComments ? (
+                          <Badge className="bg-blue-100 text-blue-800 border-0">
+                            <Hash className="w-3 h-3 mr-1" />
+                            Todos os comentários
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-green-100 text-green-800 border-0">
+                            <Hash className="w-3 h-3 mr-1" />
+                            Palavras-chave específicas
+                          </Badge>
+                        )}
                       </div>
                     </div>
 
@@ -592,6 +749,103 @@ const CampaignDetails = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* Tabela de Comentários */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Comentários Recebidos</span>
+                </CardTitle>
+                <CardDescription>
+                  Lista de todos os comentários detectados e ações tomadas
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Usuário</TableHead>
+                        <TableHead>Comentário</TableHead>
+                        <TableHead>Palavra-chave</TableHead>
+                        <TableHead>DM Enviado</TableHead>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {commentInteractions.map((interaction) => (
+                        <TableRow key={interaction.id}>
+                          <TableCell>
+                            <div className="flex items-center space-x-3">
+                              <Avatar className="w-8 h-8">
+                                <AvatarFallback className="bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs">
+                                  {interaction.fullName.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium text-sm">@{interaction.username}</p>
+                                <p className="text-xs text-gray-500">{interaction.fullName}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-xs">
+                            <p className="text-sm truncate" title={interaction.comment}>
+                              {interaction.comment}
+                            </p>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-xs">
+                              {interaction.keyword === 'todos' ? 'todos' : `#${interaction.keyword}`}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {interaction.dmSent ? (
+                              getStatusBadge(interaction.dmStatus)
+                            ) : (
+                              <Badge variant="secondary" className="text-xs">
+                                <Clock className="w-3 h-3 mr-1" />
+                                Não enviado
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {formatDate(interaction.commentDate)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <Button size="sm" variant="outline" asChild>
+                                <a href={interaction.profileUrl} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              </Button>
+                              <Button size="sm" variant="outline" asChild>
+                                <a href={interaction.postUrl} target="_blank" rel="noopener noreferrer">
+                                  <Instagram className="w-3 h-3" />
+                                </a>
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {commentInteractions.length === 0 && (
+                  <div className="text-center py-8">
+                    <MessageCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      Nenhum comentário ainda
+                    </h3>
+                    <p className="text-gray-500">
+                      Os comentários aparecerão aqui quando a campanha estiver ativa e receber interações.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right Column - Keywords & Analytics */}
@@ -599,36 +853,103 @@ const CampaignDetails = () => {
             {/* Palavras-Chave */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Hash className="w-5 h-5" />
-                  <span>Palavras-Chave</span>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Hash className="w-5 h-5" />
+                    <span>Palavras-Chave</span>
+                  </div>
+                  {editingField !== 'keywords' && (
+                    <Button size="sm" variant="outline" onClick={() => setEditingField('keywords')}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  )}
                 </CardTitle>
                 <CardDescription>
-                  Palavras que ativam as automações
+                  Configure como monitorar comentários
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {campaign.listenAllComments ? (
-                    <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span className="text-sm font-medium">Todos os comentários</span>
+                {editingField === 'keywords' ? (
+                  <div className="space-y-4">
+                    {/* Toggle for listen all comments */}
+                    <div className="flex items-center justify-between p-3 border rounded">
+                      <div>
+                        <p className="font-medium text-sm">Todos os comentários</p>
+                        <p className="text-xs text-gray-500">Responder a qualquer comentário</p>
                       </div>
-                      <Badge variant="secondary">∞</Badge>
+                      <Switch
+                        checked={editValues.listenAllComments}
+                        onCheckedChange={(checked) => setEditValues(prev => ({
+                          ...prev,
+                          listenAllComments: checked
+                        }))}
+                      />
                     </div>
-                  ) : (
-                    <>
-                      <Badge variant="secondary">{campaign.keywords.length} ativas</Badge>
-                      {campaign.keywords.map(keyword => (
-                        <div key={keyword} className="flex items-center justify-between p-2 bg-green-50 rounded">
-                          <span className="text-sm font-medium">#{keyword}</span>
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+
+                    {!editValues.listenAllComments && (
+                      <>
+                        <div className="flex space-x-2">
+                          <Input
+                            placeholder="Nova palavra-chave..."
+                            value={editValues.newKeyword}
+                            onChange={(e) => setEditValues(prev => ({ ...prev, newKeyword: e.target.value }))}
+                            onKeyPress={(e) => e.key === 'Enter' && handleAddKeyword()}
+                          />
+                          <Button onClick={handleAddKeyword} size="sm" disabled={!editValues.newKeyword.trim()}>
+                            <Plus className="w-4 h-4" />
+                          </Button>
                         </div>
-                      ))}
-                    </>
-                  )}
-                </div>
+                        
+                        <div className="space-y-2">
+                          {editValues.keywords.map(keyword => (
+                            <div key={keyword} className="flex items-center justify-between p-2 bg-green-50 rounded border">
+                              <span className="text-sm font-medium">#{keyword}</span>
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                onClick={() => handleRemoveKeyword(keyword)}
+                              >
+                                <X className="w-3 h-3 text-red-500" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    <div className="flex space-x-2">
+                      <Button onClick={() => handleSave('keywords')} size="sm" disabled={updateCampaignMutation.isPending}>
+                        <Save className="w-4 h-4 mr-2" />
+                        Salvar
+                      </Button>
+                      <Button variant="outline" onClick={() => setEditingField(null)} size="sm">
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {campaign.listenAllComments ? (
+                      <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span className="text-sm font-medium">Todos os comentários</span>
+                        </div>
+                        <Badge variant="secondary">∞</Badge>
+                      </div>
+                    ) : (
+                      <>
+                        <Badge variant="secondary">{campaign.keywords.length} ativas</Badge>
+                        {campaign.keywords.map(keyword => (
+                          <div key={keyword} className="flex items-center justify-between p-2 bg-green-50 rounded">
+                            <span className="text-sm font-medium">#{keyword}</span>
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -650,7 +971,7 @@ const CampaignDetails = () => {
                       <MessageCircle className="w-4 h-4 text-blue-500" />
                       <span className="text-sm">Comentários Detectados</span>
                     </div>
-                    <span className="font-bold">0</span>
+                    <span className="font-bold">{totalComments}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -658,15 +979,15 @@ const CampaignDetails = () => {
                       <Send className="w-4 h-4 text-green-500" />
                       <span className="text-sm">DMs Enviadas</span>
                     </div>
-                    <span className="font-bold">0</span>
+                    <span className="font-bold">{totalDMsSent}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <TrendingUp className="w-4 h-4 text-orange-500" />
-                      <span className="text-sm">Taxa de Envio</span>
+                      <span className="text-sm">Taxa de Sucesso</span>
                     </div>
-                    <span className="font-bold">0%</span>
+                    <span className="font-bold">{successRate}%</span>
                   </div>
                 </div>
               </CardContent>
