@@ -5,11 +5,21 @@ interface Button {
   responseMessage: string;
 }
 
+interface InstagramPost {
+  id: string;
+  media_url: string;
+  thumbnail_url?: string;
+  caption?: string;
+  media_type: 'IMAGE' | 'VIDEO' | 'CAROUSEL_ALBUM';
+  timestamp: string;
+}
+
 export interface MVPAutomation {
   id: string;
   name: string;
   accountName: string;
   postUrl: string;
+  selectedPosts?: InstagramPost[];
   keywords: string[];
   dmTemplate: string;
   messageType?: 'simple' | 'link' | 'button';
