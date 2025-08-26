@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { name, accountId, postUrl, keywords, dmTemplate, listenAllComments, messageType, linkUrl, buttons } = await req.json()
+    const { name, accountId, postUrl, keywords, dmTemplate, listenAllComments, messageType, linkUrl, buttons, requireUserFollow } = await req.json()
 
     if (!name || !postUrl || !dmTemplate) {
       throw new Error('Missing required fields')
@@ -105,6 +105,7 @@ serve(async (req) => {
         message_type: messageType || 'simple',
         link_url: linkUrl || null,
         buttons: buttons ? JSON.stringify(buttons) : null,
+        require_user_follow: requireUserFollow || false,
       })
       .select()
       .single()

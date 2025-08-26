@@ -31,6 +31,23 @@ const ConnectInstagram = () => {
   const queryClient = useQueryClient();
   const { isInMVPMode } = useAuth();
 
+  // Check current connection status
+  const { data: account, isLoading } = useQuery({
+    queryKey: ["connected-account"],
+    queryFn: async () => {
+      if (isInMVPMode) return null;
+      
+      const { data, error } = await supabase
+        .from("accounts")
+        .select("id, page_id, ig_business_id, connected_at")
+        .single();
+      
+      if (error && error.code !== "PGRST116") throw error;
+      return data;
+    },
+    enabled: !isInMVPMode,
+  });
+
   // Check Instagram configuration status
   const { data: configStatus, isLoading: isCheckingConfig } = useQuery({
     queryKey: ["instagram-config-status"],
@@ -65,22 +82,6 @@ const ConnectInstagram = () => {
     }
   }, [searchParams, toast]);
 
-  // Check current connection status
-  const { data: account, isLoading } = useQuery({
-    queryKey: ["connected-account"],
-    queryFn: async () => {
-      if (isInMVPMode) return null;
-      
-      const { data, error } = await supabase
-        .from("accounts")
-        .select("*")
-        .single();
-      
-      if (error && error.code !== "PGRST116") throw error;
-      return data;
-    },
-    enabled: !isInMVPMode,
-  });
 
   // Disconnect account mutation
   const disconnectMutation = useMutation({

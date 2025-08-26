@@ -28,6 +28,7 @@ export interface MVPAutomation {
   createdAt: string;
   active?: boolean;
   listenAllComments?: boolean;
+  requireUserFollow?: boolean;
 }
 
 const MVP_KEY = 'comente_dm_mvp_mode';

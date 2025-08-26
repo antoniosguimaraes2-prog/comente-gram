@@ -45,6 +45,7 @@ interface CampaignData {
   selectedPosts: InstagramPost[];
   keywords: string[];
   listenAllComments: boolean;
+  requireUserFollow: boolean;
   messageType: 'simple' | 'link' | 'button';
   messageContent: string;
   linkUrl: string;
@@ -205,6 +206,7 @@ const NewCampaign = () => {
     selectedPosts: [],
     keywords: [],
     listenAllComments: false,
+    requireUserFollow: false,
     messageType: 'simple',
     messageContent: '',
     linkUrl: '',
@@ -275,16 +277,17 @@ const NewCampaign = () => {
   const createCampaignMutation = useMutation({
     mutationFn: async (finalData: CampaignData) => {
       if (isInMVPMode) {
-        addMVPAutomation({
-          name: finalData.name,
-          accountName: "Conta de Teste MVP",
-          postUrl: `https://instagram.com/p/${finalData.selectedPosts[0]?.id}`,
-          keywords: finalData.keywords,
-          dmTemplate: finalData.messageContent,
-          messageType: finalData.messageType,
-          linkUrl: finalData.linkUrl,
-          buttons: finalData.buttons,
-        });
+          addMVPAutomation({
+            name: finalData.name,
+            accountName: "Conta de Teste MVP",
+            postUrl: `https://instagram.com/p/${finalData.selectedPosts[0]?.id}`,
+            keywords: finalData.keywords,
+            dmTemplate: finalData.messageContent,
+            messageType: finalData.messageType,
+            linkUrl: finalData.linkUrl,
+            buttons: finalData.buttons,
+            requireUserFollow: finalData.requireUserFollow,
+          });
         return { success: true };
       }
 
@@ -299,7 +302,8 @@ const NewCampaign = () => {
             listenAllComments: finalData.listenAllComments,
             messageType: finalData.messageType,
             linkUrl: finalData.linkUrl,
-            buttons: finalData.buttons
+            buttons: finalData.buttons,
+            requireUserFollow: finalData.requireUserFollow
           },
         })
       );
@@ -730,6 +734,49 @@ const NewCampaign = () => {
                       )}
                     </div>
                   )}
+
+                  {/* Require User Follow Option */}
+                  <div className="space-y-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="require-follow" className="text-amber-800 font-medium">
+                          Solicitar que usuário siga a página
+                        </Label>
+                        <p className="text-sm text-amber-600 mt-1">
+                          Usuários que não seguem a página receberão uma mensagem pedindo para seguir primeiro
+                        </p>
+                      </div>
+                      <Switch
+                        id="require-follow"
+                        checked={campaignData.requireUserFollow}
+                        onCheckedChange={(checked) => setCampaignData(prev => ({
+                          ...prev,
+                          requireUserFollow: checked
+                        }))}
+                      />
+                    </div>
+
+                    {campaignData.requireUserFollow && (
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2 text-amber-700">
+                          <AlertCircle className="w-4 h-4" />
+                          <span className="text-sm font-medium">Como funciona:</span>
+                        </div>
+                        <ul className="text-sm text-amber-700 list-disc pl-6 space-y-1">
+                          <li>Sistema verifica se o usuário segue a página antes de enviar a DM principal</li>
+                          <li>Se não seguir, enviará mensagem solicitando que siga primeiro</li>
+                          <li>Após seguir, o usuário receberá a mensagem principal configurada</li>
+                        </ul>
+                        <div className="bg-white border border-amber-200 rounded-lg p-3 mt-3">
+                          <p className="text-sm font-medium text-amber-800 mb-2">Mensagem automática para não-seguidores:</p>
+                          <p className="text-sm text-amber-700 italic">
+                            "Olá! Para receber nossa resposta, você precisa seguir nossa página primeiro. 
+                            Após seguir, envie outro comentário e receberá nossa mensagem exclusiva! 🙂"
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
