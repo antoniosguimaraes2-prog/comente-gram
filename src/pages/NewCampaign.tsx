@@ -114,37 +114,48 @@ const InstagramDMMockup = ({ campaignData }: { campaignData: CampaignData }) => 
               </div>
             </div>
 
-            {/* Bot response */}
+            {/* Bot response - Show follow message if required and not following */}
             <div className="flex justify-start">
               <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-lg max-w-xs shadow-sm">
-                <p className="text-sm text-gray-800 whitespace-pre-wrap">
-                  {formatMessage(campaignData.messageContent)}
-                </p>
+                {campaignData.requireUserFollow ? (
+                  <>
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                      Olá! Para receber nossa resposta, você precisa seguir nossa página primeiro. 
+                      Após seguir, envie outro comentário e receberá nossa mensagem exclusiva! 🙂
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                      {formatMessage(campaignData.messageContent)}
+                    </p>
 
-                {/* Link preview for link type */}
-                {campaignData.messageType === 'link' && campaignData.linkUrl && (
-                  <div className="mt-3 border border-gray-200 rounded-lg overflow-hidden">
-                    <div className="h-20 bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center">
-                      <LinkIcon className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <div className="p-2">
-                      <p className="text-xs text-gray-600 truncate">{campaignData.linkUrl}</p>
-                    </div>
-                  </div>
-                )}
+                    {/* Link preview for link type */}
+                    {campaignData.messageType === 'link' && campaignData.linkUrl && (
+                      <div className="mt-3 border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="h-20 bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center">
+                          <LinkIcon className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <div className="p-2">
+                          <p className="text-xs text-gray-600 truncate">{campaignData.linkUrl}</p>
+                        </div>
+                      </div>
+                    )}
 
-                {/* Buttons for button type */}
-                {campaignData.messageType === 'button' && campaignData.buttons.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    {campaignData.buttons.map((button, index) => (
-                      <button
-                        key={index}
-                        className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
-                      >
-                        {button.name}
-                      </button>
-                    ))}
-                  </div>
+                    {/* Buttons for button type */}
+                    {campaignData.messageType === 'button' && campaignData.buttons.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {campaignData.buttons.map((button, index) => (
+                          <button
+                            key={index}
+                            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                          >
+                            {button.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -154,29 +165,90 @@ const InstagramDMMockup = ({ campaignData }: { campaignData: CampaignData }) => 
               <p className="text-xs text-gray-400 ml-2">Entregue</p>
             </div>
 
-            {/* Button click responses - Only for button type */}
-            {campaignData.messageType === 'button' && campaignData.buttons.length > 0 && (
+            {/* Show follow-up conversation if following is required */}
+            {campaignData.requireUserFollow && (
+              <>
+                {/* Simulate user following and commenting again */}
+                <div className="flex justify-center">
+                  <div className="bg-green-100 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-700">
+                    *Usuário seguiu a página*
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <div className="bg-blue-500 text-white px-4 py-2 rounded-2xl rounded-br-lg max-w-xs">
+                    <p className="text-sm">interessado</p>
+                  </div>
+                </div>
+
+                {/* Now send the main message */}
+                <div className="flex justify-start">
+                  <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-lg max-w-xs shadow-sm">
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                      {formatMessage(campaignData.messageContent)}
+                    </p>
+
+                    {/* Link preview for link type */}
+                    {campaignData.messageType === 'link' && campaignData.linkUrl && (
+                      <div className="mt-3 border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="h-20 bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center">
+                          <LinkIcon className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <div className="p-2">
+                          <p className="text-xs text-gray-600 truncate">{campaignData.linkUrl}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Buttons for button type */}
+                    {campaignData.messageType === 'button' && campaignData.buttons.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {campaignData.buttons.map((button, index) => (
+                          <button
+                            key={index}
+                            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                          >
+                            {button.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-start">
+                  <p className="text-xs text-gray-400 ml-2">Entregue</p>
+                </div>
+              </>
+            )}
+
+            {/* Button click responses - Only for button type and when not requiring follow or after following */}
+            {campaignData.messageType === 'button' && campaignData.buttons.length > 0 && (!campaignData.requireUserFollow || campaignData.requireUserFollow) && (
               <>
                 {/* Simulate button click */}
                 <div className="flex justify-end">
                   <div className="bg-blue-500 text-white px-4 py-2 rounded-2xl rounded-br-lg max-w-xs">
-                    <p className="text-sm">Clicou em "{campaignData.buttons[0].name}"</p>
+                    <p className="text-sm">Clicou em "{campaignData.buttons[0]?.name || 'Botão'}"</p>
                   </div>
                 </div>
 
                 {/* Bot response to button click */}
-                <div className="flex justify-start">
-                  <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-lg max-w-xs shadow-sm">
-                    <p className="text-sm text-gray-800 whitespace-pre-wrap">
-                      {formatMessage(campaignData.buttons[0].responseMessage)}
-                    </p>
-                  </div>
-                </div>
+                {campaignData.buttons[0]?.responseMessage && (
+                  <>
+                    <div className="flex justify-start">
+                      <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-lg max-w-xs shadow-sm">
+                        <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                          {formatMessage(campaignData.buttons[0].responseMessage)}
+                        </p>
+                      </div>
+                    </div>
 
-                {/* Delivered indicator for response */}
-                <div className="flex justify-start">
-                  <p className="text-xs text-gray-400 ml-2">Entregue</p>
-                </div>
+                    {/* Delivered indicator for response */}
+                    <div className="flex justify-start">
+                      <p className="text-xs text-gray-400 ml-2">Entregue</p>
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>

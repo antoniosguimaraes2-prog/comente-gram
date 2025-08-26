@@ -183,6 +183,7 @@ export type Database = {
           media_id: string
           name: string | null
           posted_at: string | null
+          require_user_follow: boolean
           thumbnail_url: string | null
           updated_at: string
         }
@@ -196,6 +197,7 @@ export type Database = {
           media_id: string
           name?: string | null
           posted_at?: string | null
+          require_user_follow?: boolean
           thumbnail_url?: string | null
           updated_at?: string
         }
@@ -209,6 +211,7 @@ export type Database = {
           media_id?: string
           name?: string | null
           posted_at?: string | null
+          require_user_follow?: boolean
           thumbnail_url?: string | null
           updated_at?: string
         }
